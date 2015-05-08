@@ -1,0 +1,134 @@
+<?php 
+//初始化分页类
+$page = new Paging();
+$page->record_num = 5;//每页最多显示5条记录
+
+//获取音乐消息列表
+$music_sql = "select * from weixin_material where material_type='music' and is_delete=0 order by material_id desc";
+$music_arr = $page->get_record($music_sql);
+?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title><?php echo WEB_TITLE;?></title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+<meta name="keywords" content="<?php echo WEB_KEYWORDS;?>" />
+<meta name="description" content="<?php echo WEB_DESCRIPTION;?>" />
+<link rel="stylesheet" type="text/css" href="css/common.css" />
+<link rel="stylesheet" type="text/css" href="css/content.css" />
+<link rel="stylesheet" type="text/css" href="css/mass_send.css" />
+<script type="text/javascript" src="../js/jquery.js"></script>
+<script type="text/javascript" src="../js/common_fun.js"></script>
+<!-- layer弹出窗口 -->
+<script type="text/javascript" src="../layer/layer.min.js"></script>
+<script type="text/javascript" src="../js/layer_window.js"></script>
+<!-- layer弹出窗口 -->
+<script type="text/javascript" src="../swfobject/swfobject.js"></script>
+<script type="text/javascript">
+	//加载音乐播放器
+	$(function(){
+		$(".music_object").each(function(){
+			var object_id = this.id;
+			var music_url = $(this).attr('music_url');
+			swfobject.embedSWF("<?php echo WEB_URL;?>dewplayer/dewplayer-rect.swf?mp3="+music_url,object_id,"200","20","9.0.0","../swfobject/expressInstall.swf",null,{wmode:"transparent"});
+		});
+	});
+</script>
+<script>
+	if(window.parent!=window){
+		//获取当前窗体索引
+		var index = parent.layer.getFrameIndex(window.name);
+	}else{
+		var index = -1;
+	}
+
+	//确定的处理
+	function window_ok(){
+		if(material_id==0){
+			layer_alert('请选择您要发送的音乐消息！');
+			return false;
+		}
+		if(index>=0){
+			$("#material_id",parent.document).val(material_id);
+			parent.msg_type = 'music';
+			$("#msg_type",parent.document).val('music');
+			$(".weixin_music_list").each(function(){
+				if(material_id==($(this).attr('material_id'))){
+					var music_html = $(this).prop('outerHTML');
+					var music_ob = $(music_html).removeClass("music_hover").addClass("music_border");
+					music_ob.find(".music_check").remove();
+					music_ob.find(".music_desc").css({'margin-left':'410px'});
+					$("#msg_content_box",parent.document).empty().append(music_ob.prop('outerHTML')).show();
+					$(".msg_class_ul li",parent.document).removeClass('selected_li');
+					$("#music_message",parent.document).addClass('selected_li');
+					$("#msg_text_main",parent.document).hide();
+					return false;
+				}
+			});
+			parent.layer.close(index); //执行关闭
+		}
+	}
+	
+	//取消的处理
+	function window_cancle(){
+		if(index>=0){
+			parent.layer.close(index); //执行关闭
+		}
+	}
+
+	var material_id = 0;//初始化素材id为0
+	$(function(){
+		//选择音乐消息素材
+		$(".weixin_music_list").click(function(){
+			material_id = $(this).attr('material_id');
+			$(".weixin_music_list").removeClass('check_list');
+			$(this).addClass('check_list');
+		});
+	});
+</script>
+</head>
+<body>
+<div class="content_main">
+	<div class="weixin_music_top">
+		<a class="weixin_music_add" href="modules.php?menu_tag=weixin_material_manage&material_type=music" target="_parent"><i></i>新建音乐消息</a>
+	</div>
+	<div class="weixin_music_main">
+		<?php foreach ($music_arr as $key=>$val){?>
+			<?php $music_info = $weixin_handle->data_to_music($val['material_data']);?>
+			<?php if($music_info){?>
+			<div class="weixin_music_list music_hover" material_id="<?php echo $val['material_id'];?>">
+				<div class="music_check">
+					<img class="checked_img" src="images/selected2.png"/>
+				</div>
+				<div class="music_cover">
+					<img class="music_pic" src="<?php echo $music_info->music_pic?$music_info->music_pic:'images/cd_cover.jpg'?>" onerror="img_error(this)"/>
+				</div>
+				<div class="music_info">
+					<p class="song_info_p">歌曲名称：<?php echo $music_info->title;?></p>
+					<p class="song_info_p">歌手：<?php echo $music_info->singer;?></p>
+					<p class="song_info_p">
+						<span>低品质试听：</span>
+						<span id="low_music<?php echo $key;?>" class="music_object" music_url="<?php echo $music_info->musicurl;?>"></span>
+					</p>
+					<?php if($music_info->hqmusicurl){?>
+					<p class="song_info_p">
+						<span>高品质试听：</span>
+						<span id="high_music<?php echo $key;?>" class="music_object" music_url="<?php echo $music_info->hqmusicurl;?>"></span>
+					</p>
+					<?php }?>
+				</div>
+				<div class="music_desc"><?php echo $music_info->description?get_abstract($music_info->description.$music_info->description,280):'暂无歌曲描述！';?></div>
+			</div>
+			<?php }?>
+		<?php }?>
+	</div>
+	<div class="weixin_music_page"><?php echo $page->get_page();?></div>
+</div>
+<div class="bottom_height"></div>
+<div class="bottom_bar">
+	<a class="bottom_button" id="button_ok" href="javascript:;" onclick="window_ok()">确定</a>
+	<a class="bottom_button" id="button_cancle" href="javascript:;" onclick="window_cancle()">取消</a>
+</div>
+</body>
+</html>

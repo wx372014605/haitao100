@@ -1,0 +1,43 @@
+{
+    "content_scripts": [
+        "sina_weibo_share.js", 
+        "amazon_content.js", 
+        "amazon_address.js", 
+        "6pm_content.js", 
+        "6pm_address.js", 
+        "macys_content.js", 
+        "gnc_content.js", 
+        "gnc_address.js", 
+        "ebay_content.js", 
+        "ebay_address.js", 
+        "vitacost_content.js", 
+        "vitacost_address.js", 
+        "drugstore_content.js", 
+        "drugstore_address.js", 
+        "saksfifthavenue_content.js", 
+        "timberland_content.js", 
+        "iherb_content.js", 
+        "auto_address.js", 
+        "my_order.js", 
+        "my_message.js"
+    ], 
+    "description": "Extension description", 
+    "creator": "Kango", 
+    "framework_version": "1.7.0 c18939a5e518", 
+    "package_id": "kango-13617339-7e4c-4c76-bf4c-a6c5582abf91", 
+    "background_scripts": [
+        "jquery.js", 
+        "config.js", 
+        "main.js"
+    ], 
+    "homepage_url": "http://kangoextensions.com/", 
+    "version": "0.9.0", 
+    "framework_package_id": "dev", 
+    "browser_button": {
+        "caption": "Kango", 
+        "tooltipText": "Kango", 
+        "icon": "icons/button.png"
+    }, 
+    "id": "{13617339-7E4C-4C76-BF4C-A6C5582ABF91}", 
+    "name": "haitao100"
+}

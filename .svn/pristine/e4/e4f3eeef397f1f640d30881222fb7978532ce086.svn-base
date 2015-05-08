@@ -1,0 +1,54 @@
+// ==UserScript==
+// @name ebay Script
+// @namespace ebay
+// @include ^https://reg.ebay.com/reg/Upgrade
+// @require jquery.js
+// @require config.js
+// @require plugin_address.js
+// ==/UserScript==
+
+
+var plugin_address = new PluginAddress();
+var _this = plugin_address.get_this();
+
+//设置国家地址
+plugin_address.set_country_address = function(){
+	
+}
+
+//设置省份地址
+plugin_address.set_province_address = function(){
+	
+}
+
+//设置城市地址
+plugin_address.set_city_address = function(){
+	$('#st_ct').val(_this.city_address);
+}
+
+//设置街道地址
+plugin_address.set_street_address = function(){
+	$('#address1').val(_this.street_address);
+}
+
+//设置公寓地址
+plugin_address.set_apartment_address = function(){
+	$('#address2').val(_this.apartment_address);
+}
+
+//设置邮编
+plugin_address.set_zip_code = function(){
+	$('#zip').val(_this.zip_code);
+}
+
+//设置收货人姓名
+plugin_address.set_user_name = function(){
+	$('#contactName').val(_this.user_name);
+}
+
+//设置收货人手机号码
+plugin_address.set_user_mobile = function(){
+	$('#dayUsph').val(_this.user_mobile);
+}
+
+plugin_address.init();

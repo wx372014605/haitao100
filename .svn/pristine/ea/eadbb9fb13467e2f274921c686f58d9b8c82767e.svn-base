@@ -1,0 +1,623 @@
+<?php 
+//获取上一个页面的url地址
+$callback_url = get_pre_url();
+
+//获取帐号id
+$account_id = get_number('account_id');
+if($account_id==0){
+	admin_tip(0, '获取帐号id失败！');
+}
+
+//获取帐号信息
+$account_sql = "select platform_id from weixin_account where account_id=$account_id limit 1";
+$account_arr = $mysql_handle->getRow($account_sql);
+if($account_sql==false){
+	admin_tip(0, '获取帐号信息失败！');
+}else{
+	if(!is_super() and $admin_id!=$account_arr['admin_id']){
+		admin_tip(0, '非法操作！');
+	}
+}
+
+//获取微信自定义菜单
+$platform_id = $account_arr['platform_id'];
+$menu_json = $weixin_handle->get_menu($platform_id);
+if($menu_json==false){
+	$error_info = $weixin_handle->get_error_info();
+	admin_tip(0, $error_info['error_info']);
+}else{
+	$menu_json = json_format($menu_json);
+}
+
+/** 
+* Indents a flat JSON string to make it more human-readable.
+* @param string $json The original JSON string to process.
+* @return string Indented version of the original JSON string.
+*/
+function json_format($json) {
+	$result = '';
+	$pos = 0;
+	$strLen = strlen($json);
+	$indentStr = '   ';
+	$newLine = "\n";
+	$prevChar = '';
+	$outOfQuotes = true;
+	
+	for ($i=0; $i<=$strLen; $i++) {
+		// Grab the next character in the string.
+		$char = substr($json, $i, 1);
+		// Are we inside a quoted string?
+		if ($char == '"' && $prevChar != '\\') {
+			$outOfQuotes = !$outOfQuotes;
+			// If this character is the end of an element,
+			// output a new line and indent the next line.
+		} else if(($char == '}' || $char == ']') && $outOfQuotes) {
+			$result .= $newLine;
+			$pos --;
+			for ($j=0; $j<$pos; $j++) {
+				$result .= $indentStr;
+			}
+		}
+		// Add the character to the result string.
+		$result .= $char;
+		// If the last character was the beginning of an element,
+		// output a new line and indent the next line.
+		if (($char == ',' || $char == '{' || $char == '[') && $outOfQuotes) {
+			$result .= $newLine;
+			if ($char == '{' || $char == '[') {
+				$pos ++;
+			}
+			for ($j = 0; $j < $pos; $j++) {
+				$result .= $indentStr;
+			}
+		}
+		$prevChar = $char;
+	}
+	return $result;
+}
+?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title><?php echo WEB_TITLE;?></title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="keywords" content="<?php echo WEB_KEYWORDS;?>" />
+<meta name="description" content="<?php echo WEB_DESCRIPTION;?>" />
+<link rel="stylesheet" type="text/css" href="css/common.css" />
+<link rel="stylesheet" type="text/css" href="css/content.css" />
+<link rel="stylesheet" type="text/css" href="css/weixin_menu.css" />
+</head>
+<body>
+<div class="hidden_back"></div>
+<div class="menu_button_main" id="parent_add">
+	<div class="window_close">
+		<img title="关闭" alt="关闭" src="images/close.png" onclick="hide_add_menu()"/>
+	</div>
+	<form class="menu_button_content">
+		<div>
+			<span>菜单名称：</span>
+			<input type="text" name="parent_name_text" maxlength="7"/>
+		</div>
+		<div class="menu_add_div">
+			<a href="javascript:;" onclick="add_parent_button()">添加</a>
+		</div>
+	</form>
+</div>
+<div class="menu_button_main" id="sub_add">
+	<div class="window_close">
+		<img title="关闭" alt="关闭" src="images/close.png" onclick="hide_add_menu($(this))"/>
+	</div>
+	<form class="menu_button_content">
+		<div>
+			<span>按钮名称：</span>
+			<input type="text" name="sub_name_text" maxlength="7"/>
+		</div>
+		<div>
+			<span>按钮类型：</span>
+	    	<select name="sub_button_type" onchange="change_sub_type($(this))">
+	    		<option value="">请选择类型</option>
+	    		<option value="click">按钮</option>
+	    		<option value="view">链接</option>
+	    	</select>
+		</div>
+		<div style="display:none;">
+			<span>按钮KEY值：</span>
+			<input type="text" name="sub_button_key" style="width:120px;"/>
+		</div>
+		<div style="display:none;">
+			<span>按钮URL：</span>
+			<input type="text" name="sub_button_url" style="width:250px;"/>
+		</div>
+		<div class="menu_add_div">
+			<a href="javascript:;" onclick="add_sub_button()">添加</a>
+		</div>
+	</form>
+</div>
+<div class="sub_button_main"></div>
+
+<div class="content_main">
+	<div class="location_bar">
+		<span>当前位置</span>
+		<span>&gt;&gt;</span>
+		<span>帐号管理</span>
+		<span>&gt;&gt;</span>
+		<span>自定义菜单管理</span>
+	</div>
+	<div class="web_content">
+		<div class="content_info">
+			<form action="do.php?act=weixin_menu_manage" method="post">
+				<input type="hidden" name="callback_url" value="<?php echo $callback_url;?>"/>
+				<input type="hidden" name="account_id" value="<?php echo $account_id;?>"/>
+				<div class="menu_edit">
+			    	<div class="menu_text">
+			    		<textarea id="menu_data" name="menu_data" onblur="json_to_menu();" autocomplete="off"><?php echo $menu_json;?></textarea>
+			    	</div>
+			    	<div class="menu_view">
+			    		<div class="menu_scan">
+			    			<div class="weixin_logo">
+	    						<img src="images/weixin_logo.png"/>
+	    					</div>
+	    					<div class="menu_tip">微信自定义菜单所见即所得工具</div>
+			    			<div class="parent_button_bar"></div>
+			    		</div>
+			    		<div class="menu_setting">
+			    			<p>按钮名称：<input type="text" name="button_name" maxlength="7"/></p>
+			    			<p>按钮序号：<input type="text" name="button_index" maxlength="1" style="width:30px;"/></p>
+			    			<p>
+			    				按钮类型：
+			    				<select name="button_type" onchange="change_type($(this))">
+			    					<option value="click">按钮</option>
+			    					<option value="view">链接</option>
+			    				</select>
+			    			</p>
+			    			<p>按钮KEY值：<input type="text" name="button_key" style="width:120px;"/></p>
+			    			<p>链接地址：<input type="text" name="button_url" style="width:280px;"/></p>
+			    			<p style="overflow:hidden;zoom:1;">
+			    				<a class="setting_a" href="javascript:;" onclick="record_button()">确定</a>
+			    				<a class="del_a" href="javascript:;" onclick="del_button()"><img alt="删除按钮" title="删除按钮" src="images/del.png"/></a>
+			    			</p>
+			    		</div>
+			    	</div>
+		    	</div>
+		    	<div class="menu_button">
+		    		<input type="submit" value="保存修改"/>
+		    	</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+
+<script type="text/javascript" src="../js/jquery.js"></script>
+<script type="text/javascript" src="../js/common_fun.js"></script>
+<script type="text/javascript">
+//由json生成自定义菜单
+function json_to_menu(){
+	var result = $("#menu_data").val();
+	try{
+		var result_obj = eval("("+result+")");
+		if(typeof(result_obj.errcode)!='undefined'){
+			layer_alert(result_obj.errmsg);
+			return;
+		}else{
+			var button_str = '';//微信自定义菜单html
+			var button_list = result_obj.menu.button;//父菜单列表
+			var parent_button_num = button_list.length;//父菜单的个数
+			if(parent_button_num<3){//父菜单最多有3个
+				var menu_width = parseInt(($(".parent_button_bar").width()-38)/parent_button_num);
+			}else{
+				var menu_width = parseInt($(".parent_button_bar").width()/parent_button_num);
+			}
+			for(var i=0;i<parent_button_num;i++){
+				var parent_button = button_list[i];//父菜单
+				var parent_button_name = parent_button.name;//父菜单名称
+				button_str += '<div class="parent_button" style="width:'+menu_width+'px">';
+				button_str += '<a class="parent_button_a" href="javascript:;" onclick="show_sub_button($(this))">'+parent_button_name+'</a>';
+				button_str += '<ul class="sub_button">';
+				var sub_button_list = parent_button.sub_button;//子菜单列表
+				var sub_button_num = sub_button_list.length;//子菜单个数
+				if(sub_button_num<5){//子菜单最多有5个
+					button_str += '<div class="sub_button_add" title="添加子菜单"><img src="images/button_add.png"/></div>';
+				}
+				for(var j=0;j<sub_button_num;j++){
+					var sub_button_type = sub_button_list[j].type;//子菜单类型
+					var sub_button_name = sub_button_list[j].name;//子菜单名称
+					if(sub_button_type=='click'){
+						var sub_button_key = sub_button_list[j].key;//子菜单KEY值
+						button_str += '<li><a href="javascript:;" onclick="change_sub_button($(this))" data-type="'+sub_button_type+'" data-key="'+sub_button_key+'">'+sub_button_name+'</a></li>';
+					}else if(sub_button_type=='view'){
+						var sub_button_url = sub_button_list[j].url;//子菜单URL值
+						button_str += '<li><a href="javascript:;" onclick="change_sub_button($(this))" data-type="'+sub_button_type+'" data-url="'+sub_button_url+'">'+sub_button_name+'</a></li>';
+					}
+				}
+				button_str += '</ul></div>';
+			}
+			if(parent_button_num<3){
+				button_str += '<div class="parent_button_add" title="添加父菜单"><img src="images/button_add.png"/></div>';
+			}
+			$(".parent_button_bar").empty().append(button_str);
+		}
+	}catch(err){
+		layer_alert('json数据转换出错，请检查自定义菜单json是否正确！');
+	}
+}
+
+//由自定义菜单重新生成json
+function menu_to_json(){
+	var json_str = '{'+"\n";
+	json_str += add_space(1)+'"menu":{'+"\n";
+	json_str += add_space(2)+'"button":['+"\n";
+	//获取父菜单
+	$(".parent_button").each(function(index,elem){
+		json_str += add_space(3)+'{'+"\n";
+		var parent_button_name = $(elem).find(".parent_button_a").text();//父菜单名称
+		json_str += add_space(4)+'"name":"'+parent_button_name+'",'+"\n";
+		var sub_button_list =  $(elem).find(".sub_button li a");//子菜单列表
+		json_str += add_space(4)+'"sub_button":['+"\n";
+		sub_button_list.each(function(sub_index,sub_elem){
+			json_str += add_space(5)+'{'+"\n";
+			var sub_button_type = $(sub_elem).attr("data-type");//子菜单类型
+			json_str += add_space(6)+'"type":"'+sub_button_type+'",'+"\n";
+			var sub_button_name = $(sub_elem).text();//子菜单名称
+			json_str += add_space(6)+'"name":"'+sub_button_name+'",'+"\n";
+			if(sub_button_type=='click'){
+				var sub_button_key = $(sub_elem).attr("data-key");//子菜单KEY值
+				json_str += add_space(6)+'"key":"'+sub_button_key+'",'+"\n";
+			}else if(sub_button_type=='view'){
+				var sub_button_url = $(sub_elem).attr("data-url");//子菜单URL值
+				json_str += add_space(6)+'"url":"'+sub_button_url+'",'+"\n";
+			}
+			json_str += add_space(6)+'"sub_button":[]'+"\n";
+			json_str += add_space(5)+'},'+"\n";
+		});
+		json_str = json_str.replace(/,\n$/,"\n");
+		json_str += add_space(4)+']'+"\n";
+		json_str += add_space(3)+'},'+"\n";
+	});
+	json_str = json_str.replace(/,\n$/,"\n");
+	json_str += add_space(2)+']'+"\n";
+	json_str += add_space(1)+'}'+"\n";
+	json_str += '}';
+	return json_str;
+}
+//填充空格
+function add_space(num){
+	var indentStr = '   ';
+	var result = '';
+	for (var i=0;i<num;i++){
+		result += indentStr;
+	}
+	return result;
+}
+
+
+//改变子菜单状态
+function change_sub_button(ob){
+	$(".sub_button li a").removeClass("selected_a2");
+	ob.addClass("selected_a2");
+}
+
+//显示子菜单
+function show_sub_button(ob){
+	$(".parent_button_bar a").removeClass("selected_a");
+	$(".sub_button li a").removeClass("selected_a2");
+	ob.addClass("selected_a");
+	var sub_button = ob.siblings(".sub_button");
+	if(sub_button.is(":hidden")){
+		$(".parent_button_bar .sub_button").hide();
+		var sub_button_height = sub_button.height();
+		sub_button.css({"top":"0px"}).show();
+		sub_button.animate({"top":(-sub_button_height-5)+"px"},100);
+	}else{
+		sub_button.animate({"top":"0px"},100,function(){
+			sub_button.hide();
+		});
+	}
+}
+
+var operating_ob;//正在操作的按钮元素
+
+//设置按钮属性
+function button_setting(ob){
+	operating_ob = ob;
+	//获取按钮的各项属性
+	var button_name = ob.text();
+	var button_type = ob.attr("data-type");
+	var button_key = ob.attr("data-key");
+	var button_url = ob.attr("data-url");
+	//获取属性栏
+	var menu_setting_ob = $(".menu_setting");
+	menu_setting_ob.find("[name='button_name']").val(button_name);
+	if(typeof(button_type)!="undefined"){
+		menu_setting_ob.find("[name='button_type'] option[value='"+button_type+"']").attr("selected",true);
+		menu_setting_ob.find("p").has("[name='button_type']").show();
+
+		//获取按钮的序号
+		var button_index = ob.parent().parent(".sub_button").find("li a").index(ob);
+		menu_setting_ob.find("[name='button_index']").val(button_index+1);
+	}else{
+		menu_setting_ob.find("p").has("[name='button_type']").hide();
+
+		//获取按钮的序号
+		var button_index = $(".parent_button_a").index(ob);
+		menu_setting_ob.find("[name='button_index']").val(button_index+1);
+	}
+	if(typeof(button_key)!="undefined"){
+		menu_setting_ob.find("[name='button_key']").val(button_key);
+		menu_setting_ob.find("p").has("[name='button_key']").show();
+	}else{
+		menu_setting_ob.find("p").has("[name='button_key']").hide();
+	}
+	if(typeof(button_url)!="undefined"){
+		menu_setting_ob.find("[name='button_url']").val(button_url);
+		menu_setting_ob.find("p").has("[name='button_url']").show();
+	}else{
+		menu_setting_ob.find("p").has("[name='button_url']").hide();
+	}
+	menu_setting_ob.show();
+}
+
+//保存按钮属性
+function record_button(){
+	var menu_setting_ob = $(".menu_setting");
+	var button_name = menu_setting_ob.find("[name='button_name']").val();
+	operating_ob.text(button_name);
+	var button_type_ob = menu_setting_ob.find("p:visible").has("[name='button_type']");
+	if(button_type_ob.length==1){
+		operating_ob.attr("data-type",button_type_ob.find("[name='button_type']").val());
+	}
+	var button_key_ob = menu_setting_ob.find("p:visible").has("[name='button_key']");
+	if(button_key_ob.length==1){
+		var sub_button_key = button_key_ob.find("[name='button_key']").val();
+		if(sub_button_key==""){
+			layer_alert("请填写按钮KEY值");
+			return;
+		}
+		operating_ob.attr("data-key",sub_button_key);
+	}else{
+		operating_ob.removeAttr("data-key");
+	}
+	var button_url_ob = menu_setting_ob.find("p:visible").has("[name='button_url']");
+	if(button_url_ob.length==1){
+		var sub_button_url = button_url_ob.find("[name='button_url']").val();
+		if(sub_button_url==""){
+			layer_alert("请填写按钮URL值");
+			return;
+		}
+		operating_ob.attr("data-url",sub_button_url);
+	}else{
+		operating_ob.removeAttr("data-url");
+	}
+
+	//按钮序号改变的特殊处理
+	if(button_type_ob.length==1){
+		//获取按钮的序号
+		var button_list = operating_ob.parent().parent(".sub_button").find("li");
+		var old_button_index = button_list.find("a").index(operating_ob);
+	}else{
+		//获取按钮的序号
+		var button_list = $(".parent_button");
+		var old_button_index = button_list.find(".parent_button_a").index(operating_ob);
+	}
+	var new_button_index = menu_setting_ob.find("[name='button_index']").val()-1;
+	new_button_index = new_button_index<0?0:new_button_index;
+	if(old_button_index!=new_button_index){
+		var button_list_length = button_list.length;//与他同级的按钮总数
+		if(button_list_length>1){
+			var this_clone = button_list.eq(old_button_index).clone();
+			new_button_index = Math.min(button_list_length-1,new_button_index);
+			button_list.eq(old_button_index).replaceWith(button_list.eq(new_button_index).clone());
+			button_list.eq(new_button_index).replaceWith(this_clone);
+		}
+	}
+
+	//重新生成json
+	var json_str = menu_to_json();
+	$("#menu_data").val(json_str);
+}
+
+//删除按钮
+function del_button(){
+	var button_type = operating_ob.attr("data-type");
+	if(typeof(button_type)=="undefined"){
+		button_confirm("删除父菜单将会删除它下面的所有子菜单，是否继续？",function(){
+			var parent_button_num = $(".parent_button").length;//父菜单的个数
+			if(parent_button_num>1){
+				operating_ob.parent(".parent_button").remove();
+			}else{
+				layer_alert("至少需要一个父菜单，删除失败！");
+				return;
+			}
+			//隐藏属性栏
+			$(".menu_setting").hide();
+			//重新生成json
+			var json_str = menu_to_json();
+			$("#menu_data").val(json_str);
+			//由json生成自定义菜单
+			json_to_menu();
+		});
+	}else{
+		button_confirm("是否要删除这个子菜单？",function(){
+			var sub_button_num = operating_ob.parent().parent(".sub_button").find("li").length;//子菜单个数
+			if(sub_button_num>1){
+				operating_ob.parent("li").remove();
+			}else{
+				layer_alert("至少需要一个子菜单，删除失败！");
+				return;
+			}
+			//隐藏属性栏
+			$(".menu_setting").hide();
+			//重新生成json
+			var json_str = menu_to_json();
+			$("#menu_data").val(json_str);
+			//由json生成自定义菜单
+			json_to_menu();
+		});
+	}
+}
+
+//改变按钮类型
+function change_type(ob){
+	var menu_setting_ob = $(".menu_setting");
+	var button_type = ob.val();
+	if(button_type=="click"){
+		menu_setting_ob.find("p").has("[name='button_key']").show().find("[name='button_key']").val("");
+		menu_setting_ob.find("p").has("[name='button_url']").hide();
+	}else if(button_type=="view"){
+		menu_setting_ob.find("p").has("[name='button_key']").hide();
+		menu_setting_ob.find("p").has("[name='button_url']").show().find("[name='button_url']").val("");
+	}
+}
+
+//改变添加子菜单时的按钮类型
+function change_sub_type(ob){
+	var button_type = ob.val();
+	if(button_type=="click"){
+		$("#sub_add .menu_button_content div").has("[name='sub_button_key']").show();
+		$("#sub_add .menu_button_content div").has("[name='sub_button_url']").hide();
+	}else if(button_type=="view"){
+		$("#sub_add .menu_button_content div").has("[name='sub_button_key']").hide();
+		$("#sub_add .menu_button_content div").has("[name='sub_button_url']").show();
+	}else{
+		$("#sub_add .menu_button_content div").has("[name='sub_button_key']").hide();
+		$("#sub_add .menu_button_content div").has("[name='sub_button_url']").hide();
+	}
+}
+
+//显示添加按钮的弹出框
+function show_add_menu(id){
+	var hidden_back_ob = $(".hidden_back");
+	hidden_back_ob.width($(document).width());
+	hidden_back_ob.height($(document).height());
+	hidden_back_ob.show();
+
+	//显示按钮添加窗口
+	var button_content_ob = $("#"+id);
+	button_content_ob.find(".menu_button_content")[0].reset();//重置表单
+	$("#sub_add .menu_button_content div").has("[name='sub_button_key']").hide();
+	$("#sub_add .menu_button_content div").has("[name='sub_button_url']").hide();
+	var button_content_width = button_content_ob.outerWidth();
+	var button_content_height = button_content_ob.outerHeight();
+	var button_content_left = $(document).scrollLeft()+($(window).width()-button_content_width)/2;
+	var button_content_top = $(document).scrollTop()+($(window).height()-button_content_height)/2;
+	button_content_ob.css({"left":button_content_left+"px","top":button_content_top+"px"});
+	button_content_ob.fadeIn(500);
+}
+
+//关闭添加按钮的弹出框
+function hide_add_menu(){
+	$(".hidden_back").hide();
+	$(".menu_button_main").fadeOut(500);;
+}
+
+//添加父菜单
+function add_parent_button(){
+	var parent_button_name = $("[name='parent_name_text']");
+	if(parent_button_name.val()==""){
+		layer_alert("请填写父菜单名称！");
+		parent_button_name.focus();
+		return;
+	}
+	var button_str = '<div class="parent_button">';
+	button_str += '<a class="parent_button_a" href="javascript:;" onclick="show_sub_button($(this))">'+parent_button_name.val()+'</a>';
+	button_str += '<ul class="sub_button">';
+	button_str += '<div class="sub_button_add" title="添加子菜单"><img src="images/button_add.png"/></div>';
+	button_str += '</ul></div>';
+	$(".parent_button_bar").append(button_str);
+
+	var parent_button_ob = $(".parent_button_bar .parent_button");
+	var parent_button_num = parent_button_ob.length;//父菜单的个数
+	if(parent_button_num==3){
+		$(".parent_button_add").remove();
+		var menu_width = parseInt($(".parent_button_bar").width()/parent_button_num);
+	}else{
+		var menu_width = parseInt(($(".parent_button_bar").width()-38)/parent_button_num);
+	}
+	parent_button_ob.width(menu_width);
+	//关闭窗口
+	hide_add_menu();
+	//重新生成json
+	var json_str = menu_to_json();
+	$("#menu_data").val(json_str);
+}
+
+//添加子菜单
+function add_sub_button(){
+	var sub_button_name = $("[name='sub_name_text']");
+	if(sub_button_name.val()==""){
+		layer_alert("请填写子菜单名称！");
+		sub_button_name.focus();
+		return;
+	}
+
+	var sub_button_type = $("[name='sub_button_type']");
+	if(sub_button_type.val()==""){
+		layer_alert("请选择你要添加的按钮类型！");
+		sub_button_type.focus();
+		return;
+	}
+
+	if(sub_button_type.val()=="click"){
+		var sub_button_key = $("[name='sub_button_key']");
+		if(sub_button_key.val()==""){
+			layer_alert("请填写按钮KEY值！");
+			sub_button_key.focus();
+			return;
+		}else{
+			var button_str = '<li><a href="javascript:;" onclick="change_sub_button($(this))" data-type="'+sub_button_type.val()+'" data-key="'+sub_button_key.val()+'">'+sub_button_name.val()+'</a></li>';
+		}
+	}else if(sub_button_type.val()=="view"){
+		var sub_button_url = $("[name='sub_button_url']");
+		if(sub_button_url.val()==""){
+			layer_alert("请填写按钮KEY值！");
+			sub_button_url.focus();
+			return;
+		}else{
+			var button_str = '<li><a href="javascript:;" onclick="change_sub_button($(this))" data-type="'+sub_button_type.val()+'" data-url="'+sub_button_url.val()+'">'+sub_button_name.val()+'</a></li>';
+		}
+	}
+
+	//开始添加子菜单
+	var parent_button_ob = $(".parent_button").has(".selected_a");
+	var sub_button = parent_button_ob.find(".sub_button");
+	sub_button.find(".sub_button_add").after(button_str);
+	var sub_button_list = sub_button.find("li");//子菜单列表
+	if(sub_button_list.length>=5){
+		sub_button.find(".sub_button_add").remove();
+	}
+	var sub_button_height = sub_button.height();
+	sub_button.css({"top":(-sub_button_height-5)+"px"});
+
+	//关闭窗口
+	hide_add_menu();
+	//重新生成json
+	var json_str = menu_to_json();
+	$("#menu_data").val(json_str);
+}
+
+//页面加载完成生成预览视图
+$(function(){
+	json_to_menu();
+	
+	//给按钮绑定设置其属性的事件
+	$(".parent_button_bar a").live("click",function(){
+		button_setting($(this));
+	});
+
+	//给添加父菜单的按钮绑定事件
+	$(".parent_button_add").live("click",function(){
+		show_add_menu('parent_add');
+	});
+
+	//给添加子菜单的按钮绑定事件
+	$(".sub_button_add").live("click",function(){
+		show_add_menu('sub_add');
+	});
+});
+</script>
+<!-- layer弹出窗口 -->
+<script type="text/javascript" src="../layer/layer.min.js"></script>
+<script type="text/javascript" src="../js/layer_window.js"></script>
+<!-- layer弹出窗口 -->
+</body>
+</html>

@@ -1,0 +1,28 @@
+html{overflow-x:hidden;}
+.top_main{overflow:hidden;zoom:1;}
+.top_main .left_border{width:3px;height:86px;background:#96CD25;float:left;_margin-right:-3px;}
+.top_main .right_border{width:3px;height:86px;background:#96CD25;float:right;_margin-left:-3px;}
+.top_main .center_border{border-top:3px solid #96CD25;border-bottom:3px solid #96CD25;}
+.top_main .center_content{
+	font-size:26px;font-family:宋体;height:80px;line-height:80px;padding-left:30px;font-weight:bold;position:relative;
+}
+.top_main .system_title{outline:none;}
+.top_main .system_title img{vertical-align:middle;width:150px;height:50px;}
+.top_main .system_title span{font-size:20px;}
+.top_main .login_state{position:absolute;right:20px;top:20px;line-height:31px;}
+.top_main .login_state font{color:#2779D6;font-size:14px;}
+.top_main .login_out{display:inline-block;width:69px;height:31px;background:url('../images/exit_button.png');vertical-align:middle;}
+
+.left_main{padding:10px;}
+.left_main .menu_list{margin-bottom:10px;}
+.left_main .parent_menu{
+	font-size:16px;font-weight:bold;background:url('../images/minus_ico.png') 3px center no-repeat;
+	padding-left:20px;height:24px;line-height:24px;cursor:pointer;overflow:hidden;
+}
+.pack_up .parent_menu{background-image:url('../images/add_ico.png');}
+.left_main .sub_menu{padding-left:20px;}
+.pack_up .sub_menu{display:none;}
+.left_main .sub_menu li{height:22px;line-height:22px;overflow:hidden;padding:0 5px;}
+.left_main .sub_menu .selected_li{background:#96CD25;}
+.left_main .sub_menu a{line-height:22px;font-size:14px;outline:none;}
+.left_main .sub_menu .selected_li a{color:#fff;}

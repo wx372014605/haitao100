@@ -1,0 +1,14 @@
+var extension = new PopupExtension();
+var _this = extension.get_this();
+
+//页面初始化
+extension.content_init = function(){
+	//kango.console.log('Hello world!');
+}
+
+//绑定事件
+extension.bind_event = function(){
+	
+}
+
+extension.init();

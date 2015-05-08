@@ -1,0 +1,54 @@
+﻿// ==UserScript==
+// @name vitacost Script
+// @namespace vitacost
+// @include ^https://www.vitacost.com/checkout.aspx
+// @require jquery.js
+// @require config.js
+// @require plugin_address.js
+// ==/UserScript==
+
+
+var plugin_address = new PluginAddress();
+var _this = plugin_address.get_this();
+
+//设置国家地址
+plugin_address.set_country_address = function(){
+	
+}
+
+//设置省份地址
+plugin_address.set_province_address = function(){
+	$('#spcFrmShpAddrState_228 option:contains("'+_this.province_address+'")').attr('selected',true);
+}
+
+//设置城市地址
+plugin_address.set_city_address = function(){
+	$('#spcFrmShpAddrCity').val(_this.city_address);
+}
+
+//设置街道地址
+plugin_address.set_street_address = function(){
+	$('#spcFrmShpAddrLine1').val(_this.street_address);
+}
+
+//设置公寓地址
+plugin_address.set_apartment_address = function(){
+	$('#spcFrmShpAddrLine2').val(_this.apartment_address);
+}
+
+//设置邮编
+plugin_address.set_zip_code = function(){
+	$('#spcFrmShpAddrZip').val(_this.zip_code);
+}
+
+//设置收货人姓名
+plugin_address.set_user_name = function(){
+	$('#spcFrmShpAddrFirstName').val(_this.user_name);
+}
+
+//设置收货人手机号码
+plugin_address.set_user_mobile = function(){
+	$('#spcFrmShpAddrPhone').val(_this.user_mobile);
+}
+
+plugin_address.init();

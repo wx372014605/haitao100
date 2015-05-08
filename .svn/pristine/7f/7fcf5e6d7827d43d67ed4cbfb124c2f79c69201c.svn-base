@@ -1,0 +1,346 @@
+// ==UserScript==
+// @name auto Script
+// @namespace auto
+// @include ^https://*
+// @exclude ^https://secure-www.6pm.com/checkout
+// @exclude ^https://www.amazon.com/gp/buy/addressselect/handlers/display.html
+// @exclude ^https://www.drugstore.com/account/default.asp
+// @exclude ^https://reg.ebay.com/reg/Upgrade
+// @exclude ^https://www.gnc.com/checkout.jsp
+// @exclude ^https://www.vitacost.com/checkout.aspx
+// @require jquery.js
+// @require config.js
+// ==/UserScript==
+
+function AutoAddress(){
+	var _this = this;
+	
+	this.title_pass = 0;
+	this.title_key = ['shipping','address'];
+	this.title_percent = 20;
+	this.name_pass = 0;
+	this.name_key = ['name'];
+	this.name_percent = 10;
+	this.phone_pass = 0;
+	this.phone_key = ['phone','tel'];
+	this.phone_percent = 10;
+	this.address1_pass = 0;
+	this.address1_key = ['address1','addr1','addressline1'];
+	this.address1_percent = 10;
+	this.address2_pass = 0;
+	this.address2_key = ['address2','addr2','addressline2'];
+	this.address2_percent = 10;
+	this.city_pass = 0;
+	this.city_key = ['city'];
+	this.city_percent = 10;
+	this.state_pass = 0;
+	this.state_key = ['state','province'];
+	this.state_percent = 10;
+	this.country_pass = 0;
+	this.country_key = ['country'];
+	this.country_percent = 10;
+	this.zip_pass = 0;
+	this.zip_key = ['zip','postal'];
+	this.zip_percent = 10;
+	
+	this.name_id = '';
+	this.phone_id = '';
+	this.address1_id = '';
+	this.address2_id = '';
+	this.city_id = '';
+	this.state_id = '';
+	this.country_id = '';
+	this.zip_id = '';
+	this.name_name = '';
+	this.phone_name = '';
+	this.address1_name = '';
+	this.address2_name = '';
+	this.city_name = '';
+	this.state_name = '';
+	this.country_name = '';
+	this.zip_name = '';
+	
+	this.country_address = '';
+	this.province_address = '';
+	this.city_address = '';
+	this.street_address = '';
+	this.apartment_address = '';
+	this.zip_code = '';
+	this.user_name = '';
+	this.user_mobile = '';
+	
+	//插件初始化
+	this.init = function(){
+		if(_this.is_address_page()){
+			//获取转运地址列表
+			var details = {
+				url: PluginConf.get_interface_file('get_transport_address'),
+				method: 'GET',
+				async: true,
+				contentType: 'json'
+			};
+			kango.xhr.send(details, function(data) {
+				if (data.status == 200 && data.response != null) {
+					var transport_address_obj = data.response;
+					if(transport_address_obj.status==1){
+						var address_arr = transport_address_obj.attach;
+						_this.country_address = address_arr.country_address;
+						_this.province_address = address_arr.province_address;
+						_this.city_address = address_arr.city_address;
+						_this.street_address = address_arr.street_address;
+						_this.apartment_address = address_arr.apartment_address;
+						_this.zip_code = address_arr.zip_code;
+						
+						//自动加载地址
+						_this.set_country_address();
+						_this.set_province_address();
+						_this.set_city_address();
+						_this.set_street_address();
+						_this.set_apartment_address();
+						_this.set_zip_code();
+					}
+				}else { // something went wrong
+					
+				}
+			});
+			
+			//获取用户id
+			kango.invokeAsync('kango.storage.getItem', 'user_id', function(user_id){
+				//获取用户收货地址
+				var details = {
+					url: PluginConf.get_interface_file('get_user_address',{'user_id':user_id}),
+					method: 'GET',
+					async: true,
+					contentType: 'json'
+				};
+				kango.xhr.send(details, function(data) {
+					if (data.status == 200 && data.response != null) {
+						var user_address_obj = data.response;
+						var user_province = 0;
+						var user_city = 0;
+						var user_district = 0;
+						if(user_address_obj.status==1){
+							var address_arr = user_address_obj.attach;
+							if(address_arr.user_name){
+								_this.user_name = address_arr.user_name;
+								_this.set_user_name();
+							}
+							if(address_arr.user_mobile){
+								_this.user_mobile = address_arr.user_mobile;
+								_this.set_user_mobile();
+							}
+						}
+					}
+				});
+			});
+		}
+	}
+	
+	//判断字符串是否包含数组中的元素
+	this.in_array = function(str,arr){
+		str = str.toLowerCase();
+		for(var i=0,len=arr.length;i<len;i++){
+			if(str.indexOf(arr[i])>=0){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	//判断该页面是否为填写收货地址的页面
+	this.is_address_page = function(){
+		//判断网页标题
+		var web_title = document.title;
+		if(_this.in_array(web_title,_this.title_key)){
+			_this.title_pass = 1;
+		}
+		
+		//判断其他
+		$('input:text').each(function(){
+			var elem_id = this.id;
+			if(elem_id){
+				if(!_this.name_pass&&_this.in_array(elem_id,_this.name_key)){
+					_this.name_pass = 1;
+					_this.name_id = elem_id;
+				}
+				if(!_this.phone_pass&&_this.in_array(elem_id,_this.phone_key)){
+					_this.phone_pass = 1;
+					_this.phone_id = elem_id;
+				}
+				if(!_this.address1_pass&&_this.in_array(elem_id,_this.address1_key)){
+					_this.address1_pass = 1;
+					_this.address1_id = elem_id;
+				}
+				if(!_this.address2_pass&&_this.in_array(elem_id,_this.address2_key)){
+					_this.address2_pass = 1;
+					_this.address2_id = elem_id;
+				}
+				if(!_this.city_pass&&_this.in_array(elem_id,_this.city_key)){
+					_this.city_pass = 1;
+					_this.city_id = elem_id;
+				}
+				if(!_this.state_pass&&_this.in_array(elem_id,_this.state_key)){
+					_this.state_pass = 1;
+					_this.state_id = elem_id;
+				}
+				if(!_this.country_pass&&_this.in_array(elem_id,_this.country_key)){
+					_this.country_pass = 1;
+					_this.country_id = elem_id;
+				}
+				if(!_this.zip_pass&&_this.in_array(elem_id,_this.zip_key)){
+					_this.zip_pass = 1;
+					_this.zip_id = elem_id;
+				}
+			}
+			
+			var elem_name = $(this).attr('name');
+			if(elem_name){
+				if(!_this.name_pass&&_this.in_array(elem_name,_this.name_key)){
+					_this.name_pass = 1;
+					_this.name_name = elem_name;
+				}
+				if(!_this.phone_pass&&_this.in_array(elem_name,_this.phone_key)){
+					_this.phone_pass = 1;
+					_this.phone_name = elem_name;
+				}
+				if(!_this.address1_pass&&_this.in_array(elem_name,_this.address1_key)){
+					_this.address1_pass = 1;
+					_this.address1_name = elem_name;
+				}
+				if(!_this.address2_pass&&_this.in_array(elem_name,_this.address2_key)){
+					_this.address2_pass = 1;
+					_this.address2_name = elem_name;
+				}
+				if(!_this.city_pass&&_this.in_array(elem_name,_this.city_key)){
+					_this.city_pass = 1;
+					_this.city_name = elem_name;
+				}
+				if(!_this.state_pass&&_this.in_array(elem_name,_this.state_key)){
+					_this.state_pass = 1;
+					_this.state_name = elem_name;
+				}
+				if(!_this.country_pass&&_this.in_array(elem_name,_this.country_key)){
+					_this.country_pass = 1;
+					_this.country_name = elem_name;
+				}
+				if(!_this.zip_pass&&_this.in_array(elem_name,_this.zip_key)){
+					_this.zip_pass = 1;
+					_this.zip_name = elem_name;
+				}
+			}
+		});
+		$('select').each(function(){
+			var elem_id = this.id;
+			if(elem_id){
+				if(!_this.state_pass&&_this.in_array(elem_id,_this.state_key)){
+					_this.state_pass = 1;
+					_this.state_id = elem_id;
+				}
+				if(!_this.country_pass&&_this.in_array(elem_id,_this.country_key)){
+					_this.country_pass = 1;
+					_this.country_id = elem_id;
+				}
+			}
+			
+			var elem_name = $(this).attr('name');
+			if(elem_name){
+				if(!_this.state_pass&&_this.in_array(elem_name,_this.state_key)){
+					_this.state_pass = 1;
+					_this.state_name = elem_name;
+				}
+				if(!_this.country_pass&&_this.in_array(elem_name,_this.country_key)){
+					_this.country_pass = 1;
+					_this.country_name = elem_name;
+				}
+			}
+		});
+		
+		var totle_percent = _this.title_pass*_this.title_percent + _this.name_pass*_this.name_percent + _this.phone_pass*_this.phone_percent +
+		_this.address1_pass*_this.address1_percent + _this.address2_pass*_this.address2_percent + _this.city_pass*_this.city_percent +
+		_this.state_pass*_this.state_percent + _this.country_pass*_this.country_percent + _this.zip_pass*_this.zip_percent;
+		if(totle_percent>=60){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	//设置国家地址
+	this.set_country_address = function(){
+		if(_this.country_pass&&_this.country_id){
+			$('#'+_this.country_id+':text').val(_this.country_address);
+			$('#'+_this.country_id+' option:contains("'+_this.country_address+'")').attr('selected',true);
+		}else if(_this.country_pass&&_this.country_name){
+			$('input[name="'+_this.country_name+'"]').val(_this.country_address);
+			$('select[name="'+_this.country_name+'"] option:contains("'+_this.country_address+'")').attr('selected',true);
+		}
+	}
+	
+	//设置省份地址
+	this.set_province_address = function(){
+		if(_this.state_pass&&_this.state_id){
+			$('#'+_this.state_id+':text').val(_this.province_address);
+			$('#'+_this.state_id+' option:contains("'+_this.province_address+'")').attr('selected',true);
+		}else if(_this.state_pass&&_this.state_name){
+			$('input[name="'+_this.state_name+'"]').val(_this.province_address);
+			$('select[name="'+_this.state_name+'"] option:contains("'+_this.province_address+'")').attr('selected',true);
+		}
+	}
+	
+	//设置城市地址
+	this.set_city_address = function(){
+		if(_this.city_pass&&_this.city_id){
+			$('#'+_this.city_id+':text').val(_this.city_address);
+		}else if(_this.city_pass&&_this.city_name){
+			$('input[name="'+_this.city_name+'"]').val(_this.city_address);
+		}
+	}
+	
+	//设置街道地址
+	this.set_street_address = function(){
+		if(_this.address1_pass&&_this.address1_id){
+			$('#'+_this.address1_id+':text').val(_this.street_address);
+		}else if(_this.address1_pass&&_this.address1_name){
+			$('input[name="'+_this.address1_name+'"]').val(_this.street_address);
+		}
+	}
+	
+	//设置公寓地址
+	this.set_apartment_address = function(){
+		if(_this.address2_pass&&_this.address2_id){
+			$('#'+_this.address2_id+':text').val(_this.apartment_address);
+		}else if(_this.address2_pass&&_this.address2_name){
+			$('input[name="'+_this.address2_name+'"]').val(_this.apartment_address);
+		}
+	}
+	
+	//设置邮编
+	this.set_zip_code = function(){
+		if(_this.zip_pass&&_this.zip_id){
+			$('#'+_this.zip_id+':text').val(_this.zip_code);
+		}else if(_this.zip_pass&&_this.zip_name){
+			$('input[name="'+_this.zip_name+'"]').val(_this.zip_code);
+		}
+	}
+	
+	//设置收货人姓名
+	this.set_user_name = function(){
+		if(_this.name_pass&&_this.name_id){
+			$('#'+_this.name_id+':text').val(_this.user_name);
+		}else if(_this.name_pass&&_this.name_name){
+			$('input[name="'+_this.name_name+'"]').val(_this.user_name);
+		}
+	}
+	
+	//设置收货人手机号码
+	this.set_user_mobile = function(){
+		if(_this.phone_pass&&_this.phone_id){
+			$('#'+_this.phone_id+':text').val(_this.user_mobile);
+		}else if(_this.phone_pass&&_this.phone_name){
+			$('input[name="'+_this.phone_name+'"]').val(_this.user_mobile);
+		}
+	}
+}
+
+var auto_address = new AutoAddress();
+auto_address.init();

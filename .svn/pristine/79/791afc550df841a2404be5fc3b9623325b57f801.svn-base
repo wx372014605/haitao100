@@ -1,0 +1,282 @@
+/*
+系统通用配置项目
+*/
+var PluginConf = {
+	'lb_rate':0.4536,//磅与千克单位换算
+	'firstFee1':8,//计算物流费用的相关参数
+	'firstFee2':4,
+	'secondFee1':10,
+	'secondFee2':3,
+	'source_url':'http://localhost/haitao100/',//资源文件和后台文件主目录,
+	//'source_url':'http://120.27.38.120/',//资源文件和后台文件主目录,
+	'css_refix':'hongfeng_',//css命名前缀
+};
+PluginConf.css_file = PluginConf.source_url+'css/plugin_content.css';//前台页面css文件
+PluginConf.img_path = PluginConf.source_url+'images/plugin/';//图片文件主目录
+PluginConf.get_interface_file = function(act,params_obj){//获取接口文件通用方法
+	var interface_file = PluginConf.source_url+'interface.php';
+	var param_str = '';
+	if(typeof(params_obj)!='undefined'){
+		for(var key in params_obj){
+			if(params_obj.hasOwnProperty(key)){
+				param_str += '&'+key+'='+params_obj[key];
+			}
+		}
+	}
+	return interface_file+'?act='+act+param_str;
+};
+
+//运单列表
+var Plugin_cart = '<div id="'+PluginConf.css_refix+'cart_content" class="'+PluginConf.css_refix+'tab_content">'+
+						'<div id="'+PluginConf.css_refix+'no_cart_info">购物车中没有商品！</div>'+
+						'<div id="'+PluginConf.css_refix+'cart_main">'+
+							'<table id="'+PluginConf.css_refix+'cart_table">'+
+								'<tr>'+
+									'<th width="5%">&nbsp;</th>'+
+									'<th width="15%">预览图片</th>'+
+									'<th width="30%">商品名称</th>'+
+									'<th width="10%">数量</th>'+
+									'<th width="13%">下单时间</th>'+
+									'<th width="13%">状态</th>'+
+									'<th width="14%">操作</th>'+
+								'</tr>'+
+								'<tr id="'+PluginConf.css_refix+'cart_check">'+
+									'<td style="text-align:left;" colspan="2" width="10%"><label><input type="checkbox" id="'+PluginConf.css_refix+'check_all"/><span class="'+PluginConf.css_refix+'check_all_tip">全选</span></label></td>'+
+									'<td colspan="5"><span id="'+PluginConf.css_refix+'checked_tip">已选择<font id="'+PluginConf.css_refix+'checked_num">0</font>件</span></td>'+
+								'</tr>'+
+							'</table>'+
+							'<div class="'+PluginConf.css_refix+'cart_button">'+
+								'<a id="'+PluginConf.css_refix+'cart_submit" class="'+PluginConf.css_refix+'button '+PluginConf.css_refix+'disable_button '+PluginConf.css_refix+'disable_select">运费支付</a>'+
+								'<div id="'+PluginConf.css_refix+'cart_page"></div>'+
+							'</div>'+
+						'</div>'+
+					'</div>';
+
+//插件html
+var PluginDiv = '<div id="'+PluginConf.css_refix+'plugin_main">'+
+					'<div id="'+PluginConf.css_refix+'top_bar">'+
+						'<ul id="'+PluginConf.css_refix+'top_bar_ul">'+
+							'<li show_id="'+PluginConf.css_refix+'info_content" class="'+PluginConf.css_refix+'top_bar_li '+PluginConf.css_refix+'selected_li">商品信息<i></i></li>'+
+							'<li show_id="'+PluginConf.css_refix+'cart_content" class="'+PluginConf.css_refix+'top_bar_li">在途运单(<span id="'+PluginConf.css_refix+'cart_count">0</span>)<i></i></li>'+
+						'</ul>'+
+					'</div>'+
+					'<div id="'+PluginConf.css_refix+'info_content" class="'+PluginConf.css_refix+'tab_content">'+
+						'<div id="'+PluginConf.css_refix+'user_about" class="'+PluginConf.css_refix+'plugin_list">'+
+							'<a id="'+PluginConf.css_refix+'logo" href="#"><img src="'+PluginConf.img_path+'logo.png"/></a>'+
+						'</div>'+
+						'<div class="'+PluginConf.css_refix+'plugin_list">'+
+							'<div class="'+PluginConf.css_refix+'list_left">'+
+								'<span class="'+PluginConf.css_refix+'plugin_list_name">售价:</span>'+
+							'</div>'+
+							'<div class="'+PluginConf.css_refix+'list_right">'+
+								'<span id="'+PluginConf.css_refix+'goods_price" class="'+PluginConf.css_refix+'plugin_list_value '+PluginConf.css_refix+'price_bold">￥0.00</span>'+
+								'<span class="'+PluginConf.css_refix+'plugin_list_tip">（当前汇率：一美元=<font id="'+PluginConf.css_refix+'exchange_rate">--</font>人名币）</span>'+
+								'<a id="'+PluginConf.css_refix+'add_fav" class="'+PluginConf.css_refix+'add_fav"><i></i>加关注</a>'+
+							'</div>'+
+						'</div>'+
+						'<div class="'+PluginConf.css_refix+'plugin_list">'+
+							'<div class="'+PluginConf.css_refix+'list_left">'+
+								'<span class="'+PluginConf.css_refix+'plugin_list_name">重量:</span>'+
+							'</div>'+
+							'<div class="'+PluginConf.css_refix+'list_right">'+
+								'<span id="'+PluginConf.css_refix+'weight_value" class="'+PluginConf.css_refix+'plugin_list_value">0</span>'+
+								'<input type="text" id="'+PluginConf.css_refix+'weight_input" class="'+PluginConf.css_refix+'plugin_text" />'+
+								'<span class="'+PluginConf.css_refix+'plugin_list_value">磅</span>'+
+								'<span class="'+PluginConf.css_refix+'plugin_list_tip">（如系统获取商品重量错误，您可以手动填写商品的大致重量）</span>'+
+							'</div>'+
+						'</div>'+
+						'<div class="'+PluginConf.css_refix+'plugin_list">'+
+							'<div class="'+PluginConf.css_refix+'list_left">'+
+								'<span class="'+PluginConf.css_refix+'plugin_list_name">数量:</span>'+
+							'</div>'+
+							'<div class="'+PluginConf.css_refix+'list_right">'+
+								'<a id="'+PluginConf.css_refix+'prodQty_reduce" class="'+PluginConf.css_refix+'prodQty_button" href="javascript:;"></a>'+
+								'<span id="'+PluginConf.css_refix+'prodQty" class="'+PluginConf.css_refix+'plugin_list_value">1</span>'+
+								'<a id="'+PluginConf.css_refix+'prodQty_add" class="'+PluginConf.css_refix+'prodQty_button" href="javascript:;"></a>'+
+							'</div>'+
+						'</div>'+
+						'<div class="'+PluginConf.css_refix+'plugin_list">'+
+							'<div class="'+PluginConf.css_refix+'list_left">'+
+								'<span class="'+PluginConf.css_refix+'plugin_list_name">报关种类:</span>'+
+							'</div>'+
+							'<div class="'+PluginConf.css_refix+'list_right">'+
+								'<span id="'+PluginConf.css_refix+'product_cat" class="'+PluginConf.css_refix+'plugin_list_value"></span>'+
+								'<div class="'+PluginConf.css_refix+'plugin_list_tip">（适用税率：<font id="'+PluginConf.css_refix+'tax_rate">--</font>）</div>'+
+							'</div>'+
+						'</div>'+
+						'<div class="'+PluginConf.css_refix+'plugin_list">'+
+							'<div class="'+PluginConf.css_refix+'list_left">'+
+								'<span class="'+PluginConf.css_refix+'plugin_list_name">关税:</span>'+
+							'</div>'+
+							'<div class="'+PluginConf.css_refix+'list_right">'+
+								'<div id="'+PluginConf.css_refix+'tax_type">'+
+									'<label><input type="radio" name="'+PluginConf.css_refix+'tax_type" value="actual" checked="checked"/>实报</label>'+
+									'<label><input type="radio" name="'+PluginConf.css_refix+'tax_type" value="default"/>默认</label>'+
+								'</div>'+
+								'<div id="'+PluginConf.css_refix+'actual_tariff_main">'+
+									'<span id="'+PluginConf.css_refix+'actual_tariff" class="'+PluginConf.css_refix+'plugin_list_value">--</span>'+
+									'<span class="'+PluginConf.css_refix+'plugin_list_tip">（使用商品的实际成交价格，需要购物小票）</span>'+
+								'</div>'+
+								'<div id="'+PluginConf.css_refix+'default_tariff_main">'+
+									'<span id="'+PluginConf.css_refix+'default_tariff" class="'+PluginConf.css_refix+'plugin_list_value">--</span>'+
+									'<span class="'+PluginConf.css_refix+'plugin_list_tip">（使用该类商品的默认完税价格<font id="'+PluginConf.css_refix+'dutiable_value" class="'+PluginConf.css_refix+'plugin_list_value">--</font>元）</span>'+
+								'</div>'+
+							'</div>'+
+						'</div>'+
+						'<div class="'+PluginConf.css_refix+'plugin_list">'+
+							'<div class="'+PluginConf.css_refix+'list_left">'+
+								'<span class="'+PluginConf.css_refix+'plugin_list_name">运费:</span>'+
+							'</div>'+
+							'<div class="'+PluginConf.css_refix+'list_right">'+
+								'<span class="'+PluginConf.css_refix+'plugin_list_value">约<font id="'+PluginConf.css_refix+'fee_totle">￥0</font>（转运：<font id="'+PluginConf.css_refix+'fee1">0</font> 快递：<font id="'+PluginConf.css_refix+'fee2">0</font>）</span>'+
+								'<span id="'+PluginConf.css_refix+'direct_mail_china"><i></i>支持直邮中国</span>'+
+							'</div>'+
+						'</div>'+
+						'<div class="'+PluginConf.css_refix+'plugin_list">'+
+							'<div class="'+PluginConf.css_refix+'list_left">'+
+								'<span class="'+PluginConf.css_refix+'plugin_list_name">到手价:</span>'+
+							'</div>'+
+							'<div class="'+PluginConf.css_refix+'list_right">'+
+								'<span id="'+PluginConf.css_refix+'totle_price" class="'+PluginConf.css_refix+'plugin_list_value '+PluginConf.css_refix+'price_bold">--</span>'+
+							'</div>'+
+						'</div>'+
+						'<div class="'+PluginConf.css_refix+'plugin_list">'+
+							'<a id="'+PluginConf.css_refix+'plugin_submit" class="'+PluginConf.css_refix+'disable_select"><i></i><span>一键提交转运</span></a>'+
+							'<a id="'+PluginConf.css_refix+'ask_pay" class="'+PluginConf.css_refix+'disable_select">找人代付</a>'+
+							'<span id="'+PluginConf.css_refix+'contact_us">遇到问题请联系客服<a target="_blank" href="http://wpa.qq.com/msgrd?v=3&uin=372014605&site=qq&menu=yes"><img border="0" src="http://wpa.qq.com/pa?p=2:372014605:41" alt="QQ交谈"/></a></span>'+
+						'</div>'+
+					'</div>'+
+					Plugin_cart+
+				'</div>';
+//弹出窗口背景
+var PluginBack = '<div id="'+PluginConf.css_refix+'window_back"></div>';
+//弹出窗口html
+var PluginWindow = '<div id="'+PluginConf.css_refix+'window_main">'+
+						'<div class="'+PluginConf.css_refix+'window_top">'+
+							'<div class="'+PluginConf.css_refix+'window_top_left"></div>'+
+							'<div class="'+PluginConf.css_refix+'window_top_right"></div>'+
+							'<div class="'+PluginConf.css_refix+'window_top_center">'+
+								'<h2>设置收货信息</h2>'+
+								'<a id="'+PluginConf.css_refix+'window_close" title="关闭窗口"></a>'+
+							'</div>'+
+						'</div>'+
+						'<div class="'+PluginConf.css_refix+'window_content">'+
+							'<div class="'+PluginConf.css_refix+'window_padding">'+
+								'<form id="'+PluginConf.css_refix+'transport_form" method="post">'+
+									'<div class="'+PluginConf.css_refix+'window_list">'+
+										'<div class="'+PluginConf.css_refix+'window_list_left">'+
+											'<span class="'+PluginConf.css_refix+'window_list_name">商品类别:</span>'+
+										'</div>'+
+										'<div class="'+PluginConf.css_refix+'window_list_right">'+
+											'<span id="'+PluginConf.css_refix+'goods_cat" class="'+PluginConf.css_refix+'window_list_value"></span>'+
+										'</div>'+
+									'</div>'+
+									'<div class="'+PluginConf.css_refix+'window_list">'+
+										'<div class="'+PluginConf.css_refix+'window_list_left">'+
+											'<span class="'+PluginConf.css_refix+'window_list_name">中文品名:</span>'+
+										'</div>'+
+										'<div class="'+PluginConf.css_refix+'window_list_right">'+
+											'<input class="'+PluginConf.css_refix+'window_text" type="text" id="'+PluginConf.css_refix+'zh_goods_name" name="'+PluginConf.css_refix+'zh_goods_name"/>'+
+										'</div>'+
+									'</div>'+
+									'<div class="'+PluginConf.css_refix+'window_list">'+
+										'<div class="'+PluginConf.css_refix+'window_list_left">'+
+											'<span class="'+PluginConf.css_refix+'window_list_name">收件人:</span>'+
+										'</div>'+
+										'<div class="'+PluginConf.css_refix+'window_list_right">'+
+											'<input class="'+PluginConf.css_refix+'window_text" type="text" id="'+PluginConf.css_refix+'receive_name" name="'+PluginConf.css_refix+'receive_name"/>'+
+										'</div>'+
+									'</div>'+
+									'<div class="'+PluginConf.css_refix+'window_list">'+
+										'<div class="'+PluginConf.css_refix+'window_list_left">'+
+											'<span class="'+PluginConf.css_refix+'window_list_name">手机号码:</span>'+
+										'</div>'+
+										'<div class="'+PluginConf.css_refix+'window_list_right">'+
+											'<input class="'+PluginConf.css_refix+'window_text" type="text" id="'+PluginConf.css_refix+'receive_mobile" name="'+PluginConf.css_refix+'receive_mobile" maxlength="11"/>'+
+										'</div>'+
+									'</div>'+
+									'<div class="'+PluginConf.css_refix+'window_list">'+
+										'<div class="'+PluginConf.css_refix+'window_list_left">'+
+											'<span class="'+PluginConf.css_refix+'window_list_name">国内地址:</span>'+
+										'</div>'+
+										'<div class="'+PluginConf.css_refix+'window_list_right">'+
+											'<span id="'+PluginConf.css_refix+'area"></span>'+
+											'<div>'+
+												'<input class="'+PluginConf.css_refix+'window_text" type="text" id="'+PluginConf.css_refix+'receive_address" name="'+PluginConf.css_refix+'receive_address"/>'+
+												'<span class="'+PluginConf.css_refix+'window_list_tip">(详细街道地址)</span>'+
+											'</div>'+
+										'</div>'+
+									'</div>'+
+									'<div class="'+PluginConf.css_refix+'window_list">'+
+										'<div class="'+PluginConf.css_refix+'window_list_left">'+
+											'<span class="'+PluginConf.css_refix+'window_list_name">申报价格:</span>'+
+										'</div>'+
+										'<div class="'+PluginConf.css_refix+'window_list_right">'+
+											'<input class="'+PluginConf.css_refix+'window_text" style="width:100px;" type="text" id="'+PluginConf.css_refix+'declared_value" name="'+PluginConf.css_refix+'declared_value"/>'+
+											'<span class="'+PluginConf.css_refix+'window_list_tip">(元/件)</span>'+
+											'<label style="margin-left:6px;"><input id="'+PluginConf.css_refix+'tax_include" type="checkbox" name="'+PluginConf.css_refix+'tax_include"/>含关税</label>'+
+										'</div>'+
+									'</div>'+
+									'<div class="'+PluginConf.css_refix+'window_list">'+
+										'<div class="'+PluginConf.css_refix+'window_list_left">'+
+											'<span class="'+PluginConf.css_refix+'window_list_name">申报数量:</span>'+
+										'</div>'+
+										'<div class="'+PluginConf.css_refix+'window_list_right">'+
+											'<input class="'+PluginConf.css_refix+'window_text" style="width:100px;" type="text" id="'+PluginConf.css_refix+'declared_num" name="'+PluginConf.css_refix+'declared_num"/>'+
+											'<span class="'+PluginConf.css_refix+'window_list_tip">件，共<font id="'+PluginConf.css_refix+'goods_kg">--</font>公斤</span>'+
+										'</div>'+
+									'</div>'+
+									'<div class="'+PluginConf.css_refix+'window_list">'+
+										'<div class="'+PluginConf.css_refix+'window_list_left">'+
+											'<span class="'+PluginConf.css_refix+'window_list_name">增值服务:</span>'+
+										'</div>'+
+										'<div id="'+PluginConf.css_refix+'attach_service" class="'+PluginConf.css_refix+'window_list_right">'+
+											'<label><input type="checkbox" name="'+PluginConf.css_refix+'window_attach" value="1"/>取出小票(每次3元)</label>'+
+											'<label><input type="checkbox" name="'+PluginConf.css_refix+'window_attach" value="2"/>入库拍照(每次2元)</label>'+
+											'<label><input type="checkbox" name="'+PluginConf.css_refix+'window_attach" value="3"/>分包(每件10元)</label>'+
+										'</div>'+
+									'</div>'+
+									'<div class="'+PluginConf.css_refix+'window_list">'+
+										'<div class="'+PluginConf.css_refix+'window_list_left">'+
+											'<span class="'+PluginConf.css_refix+'window_list_name">转运地址:</span>'+
+										'</div>'+
+										'<div class="'+PluginConf.css_refix+'window_list_right">'+
+											'<select id="'+PluginConf.css_refix+'transport_address" name="'+PluginConf.css_refix+'transport_address"></select>'+
+										'</div>'+
+									'</div>'+
+									'<div class="'+PluginConf.css_refix+'window_list">'+
+										'<div class="'+PluginConf.css_refix+'window_list_left">'+
+											'<span class="'+PluginConf.css_refix+'window_list_name">备注:</span>'+
+										'</div>'+
+										'<div class="'+PluginConf.css_refix+'window_list_right">'+
+											'<textarea id="'+PluginConf.css_refix+'order_remarks" name="'+PluginConf.css_refix+'order_remarks"></textarea>'+
+										'</div>'+
+									'</div>'+
+									'<div class="'+PluginConf.css_refix+'window_list">'+
+										'<div class="'+PluginConf.css_refix+'window_list_left">'+'</div>'+
+										'<div class="'+PluginConf.css_refix+'window_list_right">'+
+											'<input id="'+PluginConf.css_refix+'transport_submit" type="submit" value="确定"/>'+
+										'</div>'+
+									'</div>'+
+								'</form>'+
+							'</div>'+
+						'</div>'+
+					'</div>';
+//订单提交成功窗口
+var PluginSuccess = '<div id="'+PluginConf.css_refix+'window_success_main">'+
+						'<div id="'+PluginConf.css_refix+'window_success_top">'+
+							'<img src="'+PluginConf.img_path+'logo.png"/>'+
+						'</div>'+
+						'<div id="'+PluginConf.css_refix+'window_success_content">'+
+							'<div class="'+PluginConf.css_refix+'window_success_info">'+
+								'<span id="'+PluginConf.css_refix+'window_success_tip">提交成功</span>'+
+								'<i id="'+PluginConf.css_refix+'window_success_ico"></i>'+
+							'</div>'+
+							'<div class="'+PluginConf.css_refix+'window_success_info">'+
+								'<span id="'+PluginConf.css_refix+'window_success_share"></span>'+
+							'</div>'+
+							'<div class="'+PluginConf.css_refix+'window_success_info">'+
+								'<a id="'+PluginConf.css_refix+'window_success_ok">确定</a>'+
+							'</div>'+
+						'</div>'+
+					'</div>';

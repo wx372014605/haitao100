@@ -1,0 +1,19 @@
+<?php
+//初始化分页类
+$page = new Paging();
+$page->page_size = 3;
+$page->page_num = 3;
+$page->show_first = false;
+$page->show_last = false;
+
+//获取商品链接
+$goods_url = get_string('goods_url');
+if($goods_url==''){
+	ajax_return(0, '获取商品链接失败！');
+}
+
+//获取商品评论列表
+$eval_sql = "select * from goods_eval where goods_url='$goods_url' order by eval_id desc";
+$eval_arr = $page->get_record($eval_sql);
+ajax_return(1, '获取商品评论列表！', array('eval_arr'=>$eval_arr,'record_count'=>$page->get_record_count(),'page_html'=>$page->get_page()));
+?>

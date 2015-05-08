@@ -1,0 +1,14 @@
+<?php
+//获取缓存中的优惠商品列表
+if($memcache_handle){
+	$plugin = $memcache_handle->get('plugin');
+	if(!$plugin or !isset($plugin['discount_goods'])){
+		file_get_contents(WEB_URL.'task/get_discount_goods.php');
+		$plugin = $memcache_handle->get('plugin');
+	}
+	$discount_goods = $plugin['discount_goods'];
+}else{
+	$discount_goods = unserialize(read_cache('discount_goods.tmp'));
+}
+ajax_return(1, '优惠商品列表成功！',$discount_goods);
+?>

@@ -1,0 +1,5 @@
+<ifmodule mod_rewrite.c>
+RewriteEngine on
+RewriteRule ^action/alipay_return.php action.php?act=alipay_return&%{QUERY_STRING}
+RewriteRule ^action/alipay_notify.php action.php?act=alipay_notify&%{QUERY_STRING}
+</ifmodule>

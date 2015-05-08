@@ -1,0 +1,50 @@
+.location_bar{background:#FFFCED;border-bottom:1px solid #96CD25;padding:8px 14px;margin-bottom:10px;}
+.location_bar span{font-size:14px;color:#4CB07C;}
+.content_main{min-width:600px;}
+.content_box{overflow:hidden;word-break:break-all;word-wrap:break-word;}
+.server_info{padding:10px 50px;}
+.server_info .info_list{line-height:36px;border-bottom:1px dashed #ddd;}
+
+/****数据搜索栏通用样式*****/
+.search_div{padding:16px;background:#FFFCED;border:1px solid #FFBE7A;border-width:1px 0;margin-top:10px;}
+.search_tip{margin-left:10px;}
+.search_text{border:1px solid #E3E9EF;padding:3px;}
+.search_button{
+	border:0;border-radius:4px;overflow:hidden;padding:0px;padding-left:16px;font-size:14px;margin-left:10px;
+	background:url('../images/search.png') left center no-repeat #fff;cursor:pointer;box-shadow:1px 1px 3px #888;
+	display:inline-block;width:80px;height:24px;line-height:24px;
+}
+/****数据搜索栏通用样式*****/
+
+/****显示数据的表格通用样式*****/
+.data_content{margin-top:10px;}
+.data_add{text-align:right;padding:0 5px;}
+.data_add a{display:inline-block;padding:5px 10px;background:#96CD25;color:#fff;}
+
+.data_table{}
+.data_table th{background:#98C1F5;font-size:14px;color:#fff;padding:10px;}
+.data_table td{text-align:center;word-break:break-all;word-wrap:break-warp;border-bottom:1px solid #DEEFFB;}
+.data_table .opera_tr td{padding:8px 5px;}
+.data_content .data_table tr:hover td{background:#FFF7B7;}
+.data_table tr:hover td{background:#FFF7B7;}
+.data_table tr:nth-child(even) td{background:#D8FCD8;}
+.data_table a{color:#0099CC;margin:0 3px;}
+.data_table a *{color:#0099CC;}
+.data_table a:hover{text-decoration:underline;}
+.no_data{line-height:24px;color:#888;text-align:center;}
+.data_table .button_td{text-align:left;}
+.data_table .table_button{background:#1F83B7;color:#fff;padding:4px 10px;margin-left:10px;border-radius:3px;overflow:hidden;cursor:pointer;box-shadow:1px 1px 3px #888;}
+.data_table .table_button:hover{text-decoration:none;}
+/****显示数据的表格通用样式*****/
+
+.left_td{width:100px;text-align:right;}
+.necessary{color:red;margin:0 5px;font-weight:bold;}
+.input_label{margin:0 3px;}
+.tip_font{color:#999;}
+.tip_font a{font-weight:bold;color:#0099CC;}
+.data_text{border:1px solid #A5C4E5;background:#fff;color:#333;padding:3px;}
+.data_area{border:1px solid #A5C4E5;background:#fff;color:#666;padding:5px;width:400px;height:80px;word-break:break-all;word-wrap:break-word;}
+.submit_button{
+	padding:3px 6px;padding-top:4px\9;cursor:pointer;background:#96CD25;
+	color:#fff;font-weight:bold;border:0;border-radius:3px;overflow:hidden;font-size:14px;
+}

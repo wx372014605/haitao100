@@ -1,0 +1,49 @@
+<?php
+//引入配置文件和相关函数
+require_once ('includes.php');
+
+$act = isset($_GET['act'])?$_GET['act']:"index";
+
+$act_arr = array(
+	"index"						=>	"interface/index.php",
+	"get_areas"					=>	"interface/get_areas.php",
+	"get_exchange_rate"			=>	"interface/get_exchange_rate.php",
+	"get_order_state"			=>	"interface/get_order_state.php",
+	"create_user"				=>	"interface/create_user.php",
+	"get_user_info"				=>	"interface/get_user_info.php",
+	"bind_user_mobile"			=>	"interface/bind_user_mobile.php",
+	"transport_submit"			=>	"interface/transport_submit.php",
+	"transport_order_delete"	=>	"interface/transport_order_delete.php",
+	"transport_order_share"		=>	"interface/transport_order_share.php",
+	"get_transport_order"		=>	"interface/get_transport_order.php",
+	"update_shipping_num"		=>	"interface/update_shipping_num.php",
+	"get_user_address"			=>	"interface/get_user_address.php",
+	"get_transport_address_list"=>	"interface/get_transport_address_list.php",
+	"get_transport_address"		=>	"interface/get_transport_address.php",
+	"get_site_list"				=>	"interface/get_site_list.php",
+	"plugin_site_submit"		=>	"interface/plugin_site_submit.php",
+	"get_plugin_message"		=>	"interface/get_plugin_message.php",
+	"update_plugin_message"		=>	"interface/update_plugin_message.php",
+	"delete_plugin_message"		=>	"interface/delete_plugin_message.php",
+	"get_discount_goods"		=>	"interface/get_discount_goods.php",
+	"add_favorite_goods"		=>	"interface/add_favorite_goods.php",
+	"get_favorite_goods"		=>	"interface/get_favorite_goods.php",
+	"delete_favorite_goods"		=>	"interface/delete_favorite_goods.php",
+	"record_view_history"		=>	"interface/record_view_history.php",
+	"get_talk_exp"				=>	"interface/get_talk_exp.php",
+	"get_talk_message"			=>	"interface/get_talk_message.php",
+	"send_talk_message"			=>	"interface/send_talk_message.php",
+);
+
+
+//加载要显示的页面
+if(isset($act_arr[$act]) and file_exists($act_arr[$act])){
+	require $act_arr[$act];
+}else{
+	if(!isset($act_arr[$act])){
+		show_tip(0, "没有定义的操作act=".$act."！","index.php");
+	}elseif(!file_exists($act_arr[$act])){
+		show_tip(0, $act_arr[$act]."文件或目录不存在！","index.php");
+	}
+}
+?>

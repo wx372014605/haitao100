@@ -1,0 +1,8 @@
+body{background:#fff;}
+.top_height{height:100px;}
+.info_main{padding:20px 5px;border:1px solid #A2E0FD;border-radius:5px;overflow:hidden;background:#F0F5F5;}
+.tip_img{width:49px;height:60px;float:left;}
+.tip_info{margin-left:50px;margin-top:0;height:auto !important;height:60px;min-height:60px;text-align:center;}
+.tip_info p{margin:0;padding:0;line-height:20px;}
+.tip_info .second{color:#DB150C;font-size:14px;margin:0 3px;}
+#manual_link{color:#0080FF;}

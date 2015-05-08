@@ -1,0 +1,8 @@
+.package_tbody{border:3px solid #DB5DDB;}
+.package_tbody .package_td{background:#DB5DDB;border-bottom:1px solid #DEEFFB;color:#fff;}
+.data_content .data_table tr:hover .package_td{background:#DB5DDB;}
+.goods_link{position:relative;}
+.goods_img{position:absolute;width:180px;left:100%;margin-left:-20px;top:10px;z-index:9999;display:none;}
+.goods_link:hover .goods_img{display:block;}
+.goods_price{color:#F30;font-weight:bold;}
+.receive_name{color:#0B57A2;font-weight:bold;margin:0 3px;}

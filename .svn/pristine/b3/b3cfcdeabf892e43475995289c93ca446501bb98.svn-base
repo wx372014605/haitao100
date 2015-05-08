@@ -1,0 +1,840 @@
+<?php
+/**
+ * 微信通用类
+ * @author zjq
+ * @version 1.0
+ */
+
+class WeiXin{
+	//类实例的静态成员变量
+	private static $_instance;
+	//微信接口调用的错误信息
+	private static $error_info;
+	//微信access_token缓存
+	private static $access_token;
+	
+	//单例模式禁止用new初始化
+	private function __construct(){
+		self::$error_info = array(
+			"error_code"	=>	"0",
+			"error_message"	=>	"",
+			"error_info"	=>	""
+		);
+		self::$access_token = array();
+	}
+	
+	//单例模式禁止克隆
+	private function __clone(){
+		
+	}
+	
+	//用于实例化该类的静态方法
+	static function getInstance(){
+		if(!(self::$_instance instanceof self)){
+			self::$_instance = new self;
+		}
+		return self::$_instance;
+	}
+	
+	//获取微信返回码对应的错误信息
+	private function get_error_message($error_code){
+		$message_arr = array(
+			'-1'	=>	'系统繁忙',
+			'0'		=>	'请求成功',
+			'40001'	=>	'获取access_token时AppSecret错误，或者access_token无效',
+			'40002'	=>	'不合法的凭证类型',
+			'40003'	=>	'不合法的OpenID',
+			'40004'	=>	'不合法的媒体文件类型',
+			'40005'	=>	'不合法的文件类型',
+			'40006'	=>	'不合法的文件大小',
+			'40007'	=>	'不合法的媒体文件id',
+			'40008'	=>	'不合法的消息类型',
+			'40009'	=>	'不合法的图片文件大小',
+			'40010'	=>	'不合法的语音文件大小',
+			'40011'	=>	'不合法的视频文件大小',
+			'40012'	=>	'不合法的缩略图文件大小',
+			'40013'	=>	'不合法的APPID',
+			'40014'	=>	'不合法的access_token',
+			'40015'	=>	'不合法的菜单类型',
+			'40016'	=>	'不合法的按钮个数',
+			'40017'	=>	'不合法的按钮个数',
+			'40018'	=>	'不合法的按钮名字长度',
+			'40019'	=>	'不合法的按钮KEY长度',
+			'40020'	=>	'不合法的按钮URL长度',
+			'40021'	=>	'不合法的菜单版本号',
+			'40022'	=>	'不合法的子菜单级数',
+			'40023'	=>	'不合法的子菜单按钮个数',
+			'40024'	=>	'不合法的子菜单按钮类型',
+			'40025'	=>	'不合法的子菜单按钮名字长度',
+			'40026'	=>	'不合法的子菜单按钮KEY长度',
+			'40027'	=>	'不合法的子菜单按钮URL长度',
+			'40028'	=>	'不合法的自定义菜单使用用户',
+			'40029'	=>	'不合法的oauth_code',
+			'40030' =>	'不合法的refresh_token',
+			'40031'	=>	'不合法的openid列表',
+			'40032'	=>	'不合法的openid列表长度',
+			'40033'	=>	'不合法的请求字符，不能包含\uxxxx格式的字符',
+			'40035'	=>	'不合法的参数',
+			'40038'	=>	'不合法的请求格式',
+			'40039'	=>	'不合法的URL长度',
+			'40050'	=>	'不合法的分组id',
+			'40051'	=>	'分组名字不合法',
+			'41001'	=>	'缺少access_token参数',
+			'41002'	=>	'缺少appid参数',
+			'41003'	=>	'缺少refresh_token参数',
+			'41004'	=>	'缺少secret参数',
+			'41005'	=>	'缺少多媒体文件数据',
+			'41006'	=>	'缺少media_id参数',
+			'41007'	=>	'缺少子菜单数据',
+			'41008'	=>	'缺少oauth code',
+			'41009'	=>	'缺少openid',
+			'42001'	=>	'access_token超时',
+			'42002'	=>	'refresh_token超时',
+			'42003'	=>	'oauth_code超时',
+			'43001'	=>	'需要GET请求',
+			'43002'	=>	'需要POST请求',
+			'43003'	=>	'需要HTTPS请求',
+			'43004'	=>	'需要接收者关注',
+			'43005'	=>	'需要好友关系',
+			'44001'	=>	'多媒体文件为空',
+			'44002'	=>	'POST的数据包为空',
+			'44003'	=>	'图文消息内容为空',
+			'44004'	=>	'文本消息内容为空',
+			'45001'	=>	'多媒体文件大小超过限制',
+			'45002'	=>	'消息内容超过限制',
+			'45003'	=>	'标题字段超过限制',
+			'45004'	=>	'描述字段超过限制',
+			'45005'	=>	'链接字段超过限制',
+			'45006'	=>	'图片链接字段超过限制',
+			'45007'	=>	'语音播放时间超过限制',
+			'45008'	=>	'图文消息超过限制',
+			'45009'	=>	'接口调用超过限制',
+			'45010'	=>	'创建菜单个数超过限制',
+			'45015'	=>	'回复时间超过限制',
+			'45016'	=>	'系统分组，不允许修改',
+			'45017'	=>	'分组名字过长',
+			'45018'	=>	'分组数量超过上限',
+			'46001'	=>	'不存在媒体数据',
+			'46002'	=>	'不存在的菜单版本',
+			'46003'	=>	'不存在的菜单数据',
+			'46004'	=>	'不存在的用户',
+			'47001'	=>	'解析JSON/XML内容错误',
+			'48001'	=>	'api功能未授权',
+			'50001'	=>	'用户未授权该api'
+		);
+		return $message_arr[$error_code];
+	}
+	
+	//获取微信接口的错误信息
+	function get_error_info(){
+		return self::$error_info;
+	}
+	
+	//设置微信接口的错误信息
+	private function set_error_info($error_code,$error_message){
+		$error_info = $this->get_error_message($error_code);
+		self::$error_info = array(
+			"error_code"	=>	$error_code,
+			"error_message"	=>	$error_message,
+			"error_info"	=>	$error_info
+		);
+	}
+	
+	
+	//更新用户信息
+	function update_user_info($open_id,$info_arr=array()){
+		global $mysql_handle;
+		
+		//检测用户是否存在
+		$check_sql = "select open_id from weixin_users where open_id='$open_id' limit 1";
+		$check_arr = $mysql_handle->getRow($check_sql);
+		if($check_arr){
+			if(!empty($info_arr)){
+				//添加时间不允许更新
+				if(isset($info_arr['add_time'])){
+					unset($info_arr['add_time']);
+				}
+				$update_str = "";
+				foreach($info_arr as $key=>$val){
+					$update_str .= ",".$key."='".$val."'";
+				}
+				$update_str = substr($update_str,1);
+				
+				$update_sql = "update weixin_users set $update_str where open_id='$open_id' limit 1";
+				$result = $mysql_handle->query($update_sql);
+				return $result;
+			}else{
+				return true;
+			}
+		}else{
+			$info_arr['open_id'] = $open_id;
+			$info_arr['add_time'] = get_current_time();
+			$info_keys = array_keys($info_arr);
+			$info_values = array_values($info_arr);
+			$keys_str = "(".implode(",",$info_keys).")";
+			$values_str = "";
+			foreach($info_values as $val){
+				$values_str .= ",'".$val."'";
+			}
+			$values_str = "(".substr($values_str,1).")";
+			
+			$insert_sql = "insert into weixin_users $keys_str values $values_str";
+			$result = $mysql_handle->query($insert_sql);
+			return $result;
+		}
+	}
+	
+	//获取微信用户信息
+	function get_weixin_user_info($platform_id,$open_id){
+		//获取ACCESS_TOKEN
+		$access_token = $this->get_access_token($platform_id);
+		
+		//获取用户信息
+		$info_url = "https://api.weixin.qq.com/cgi-bin/user/info?access_token=$access_token&openid=$open_id";
+		$info_json = curl_get_contents($info_url);
+		if($info_json==false){
+			return false;
+		}else{
+			$info_obj = json_decode($info_json);
+			if(!is_object($info_obj)){
+				return false;
+			}else if(isset($info_obj->errcode) and $info_obj->errcode){
+				$this->set_error_info($info_obj->errcode, $info_obj->errmsg);
+				return false;
+			}else{
+				if($info_obj->subscribe==1){
+					return $info_obj;
+				}else{
+					return false;
+				}
+			}
+		}
+	}
+	
+	//更新微信用户信息
+	function update_weixin_user_info($platform_id,$open_id,$weixin_info_arr=array()){
+		global $mysql_handle;
+		
+		$weixin_info_arr['platform_id'] = $platform_id;
+		//从远程下载图片并保存在本地
+		if(isset($weixin_info_arr['headimgurl']) and $weixin_info_arr['headimgurl']){
+			$headimgurl = $weixin_info_arr['headimgurl'];
+			$curl = curl_init($headimgurl);
+			$header = array(
+				'Accept:*/*',
+				'Accept-Charset:GBK,utf-8;q=0.7,*;q=0.3',
+				'Accept-Encoding:gzip,deflate,sdch','Accept-Language:zh-CN,zh;q=0.8',
+				'Connection:keep-alive',
+				'Host:wx.qlogo.cn'
+			);
+			curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
+			curl_setopt($curl, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 5.1; rv:26.0) Gecko/20100101 Firefox/26.0');
+			curl_setopt($curl, CURLOPT_RETURNTRANSFER,1);
+			$img_str = curl_exec($curl);
+			$curl_info = curl_getinfo($curl);
+			if(curl_errno($curl)){
+				$img_str = '';
+			}
+			curl_close($curl);
+			if($img_str){
+				$dir_name = "weixin_ico/".$platform_id."/";
+				create_dir($dir_name);
+				//生成新的图片
+				switch ($curl_info['content_type']){
+					case 'image/png':
+						$extend_name = "png";
+						break;
+					case 'image/gif':
+						$extend_name = "gif";
+						break;
+					default:
+						$extend_name = "jpg";
+						break;
+				}
+				$ico_name = $dir_name.$open_id.".".$extend_name;
+				$result = write_file($ico_name, $img_str);
+				if($result){
+					$weixin_info_arr['headimgurl'] = $ico_name;
+				}
+			}
+		}
+		
+		//检测用户是否存在
+		$check_sql = "select open_id from weixin_user_info where open_id='$open_id' limit 1";
+		$check_arr = $mysql_handle->getRow($check_sql);
+		if($check_arr){
+			if(!empty($weixin_info_arr)){
+				$weixin_info_arr['update_time'] = get_current_time();
+				$update_str = "";
+				foreach($weixin_info_arr as $key=>$val){
+					$update_str .= ",".$key."='".$val."'";
+				}
+				$update_str = substr($update_str,1);
+				$update_sql = "update weixin_user_info set $update_str where open_id='$open_id' limit 1";
+				$result = $mysql_handle->query($update_sql);
+				return $result;
+			}else{
+				return true;
+			}
+		}else{
+			$weixin_info_arr['open_id'] = $open_id;
+			$weixin_info_arr['update_time'] = get_current_time();
+			$info_keys = array_keys($weixin_info_arr);
+			$info_values = array_values($weixin_info_arr);
+			$keys_str = "(".implode(",",$info_keys).")";
+			$values_str = "";
+			foreach($info_values as $val){
+				$values_str .= ",'".$val."'";
+			}
+			$values_str = "(".substr($values_str,1).")";
+			
+			$insert_sql = "insert into weixin_user_info $keys_str values $values_str";
+			$result = $mysql_handle->query($insert_sql);
+			return $result;
+		}
+	}
+	
+	//获取关注用户列表
+	function get_subscribe_list($platform_id){
+		$access_token = $this->get_access_token($platform_id);
+		if($access_token){
+			$subscribe_list = array();
+			$next_openid = "";
+			while(true){
+				$list_url = "https://api.weixin.qq.com/cgi-bin/user/get?access_token=$access_token&next_openid=$next_openid";
+				$json = curl_get_contents($list_url);
+				if($json){
+					$result_obj = json_decode($json);
+					if(!is_object($result_obj)){
+						break;
+					}else if(isset($result_obj->errcode) and $result_obj->errcode){
+						$this->set_error_info($result_obj->errcode, $result_obj->errmsg);
+						break;
+					}else{
+						if(isset($result_obj->data->openid)){
+							$openid_list = $result_obj->data->openid;
+							$subscribe_list = array_merge($subscribe_list,$openid_list);
+							$next_openid = $result_obj->next_openid;
+							if($next_openid==""){
+								break;
+							}
+						}else{
+							break;
+						}
+					}
+				}else{
+					break;
+				}
+			}
+			return $subscribe_list;
+		}else{
+			return false;
+		}
+	}
+	
+	//获取公众帐号信息
+	function get_account_info($platform_id){
+		global $mysql_handle;
+		$account_sql = "select * from weixin_account where platform_id='$platform_id' limit 1";
+		$account_arr = $mysql_handle->getRow($account_sql);
+		return $account_arr;
+	}
+	
+	//获得access token
+	function get_access_token($platform_id){
+		global $mysql_handle,$memcache_handle;
+		
+		//从缓存读取access token
+		if(isset(self::$access_token[$platform_id])){
+			return self::$access_token[$platform_id];
+		}else{
+			if($memcache_handle){
+				$access_token = $memcache_handle->get($platform_id);
+				if(!$access_token){
+					//重新获取access_token
+					$token_arr = $this->get_account_info($platform_id);
+					if($token_arr==false){
+						return false;
+					}else{
+						$AppId = $token_arr['app_id'];
+						$AppSecret = $token_arr['app_secret'];
+					}
+					$token_url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".$AppId."&secret=".$AppSecret;
+					$token_json = curl_get_contents($token_url);
+					if($token_json==false){
+						return false;
+					}
+					$token_obj = json_decode($token_json);
+					if(!is_object($token_obj)){
+						return false;
+					}else if(isset($token_obj->errcode) and $token_obj->errcode){
+						$this->set_error_info($token_obj->errcode, $token_obj->errmsg);
+						return false;
+					}
+					$access_token = $token_obj->access_token;
+					$expires_in = $token_obj->expires_in;
+					$memcache_handle->set($platform_id,$access_token,0,$expires_in);
+				}
+			}else{
+				//读取access_token
+				$token_arr = $this->get_account_info($platform_id);
+				if($token_arr==false){
+					return false;
+				}else{
+					$AppId = $token_arr['app_id'];
+					$AppSecret = $token_arr['app_secret'];
+					$access_token = $token_arr['access_token'];
+					$expires_time = $token_arr['expires_time'];
+				}
+				
+				//重新获取access_token
+				if(is_null($expires_time) or strtotime($expires_time)<=time()){
+					$token_url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".$AppId."&secret=".$AppSecret;
+					$token_json = curl_get_contents($token_url);
+					if($token_json==false){
+						return false;
+					}
+					$token_obj = json_decode($token_json);
+					if(!is_object($token_obj)){
+						return false;
+					}else if(isset($token_obj->errcode) and $token_obj->errcode){
+						$this->set_error_info($token_obj->errcode, $token_obj->errmsg);
+						return false;
+					}
+					$access_token = $token_obj->access_token;
+					$expires_in = $token_obj->expires_in;
+					
+					//保存新的access_token到数据库
+					$expires_time = date("Y-m-d H:i:s",time()+$expires_in);
+					$update_sql = "update weixin_account set access_token='$access_token',expires_time='$expires_time' where platform_id='$platform_id' limit 1";
+					$mysql_handle->query($update_sql);
+				}
+			}
+			
+			//返回access_token
+			self::$access_token[$platform_id] = $access_token;
+			return $access_token;
+		}
+	}
+	
+	//获取微信自定义菜单
+	function get_menu($platform_id){
+		$access_token = $this->get_access_token($platform_id);
+		if($access_token){
+			$menu_url = "https://api.weixin.qq.com/cgi-bin/menu/get?access_token=".$access_token;
+			$menu_json = curl_get_contents($menu_url);
+			$menu_obj = json_decode($menu_json);
+			if(!is_object($menu_obj)){
+				return false;
+			}else if(isset($menu_obj->errcode) and $menu_obj->errcode){
+				$this->set_error_info($menu_obj->errcode, $menu_obj->errmsg);
+				return false;
+			}else{
+				return $menu_json;
+			}
+		}else{
+			return false;
+		}
+	}
+	
+	//设置微信自定义菜单
+	function set_menu($platform_id,$menu_data){
+		$access_token = $this->get_access_token($platform_id);
+		if($access_token){
+			$menu_url = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=$access_token";
+			$menu_json = curl_post_contents($menu_url,$menu_data);
+			$menu_obj = json_decode($menu_json);
+			if(!is_object($menu_obj)){
+				return false;
+			}else if(isset($menu_obj->errcode) and $menu_obj->errcode){
+				$this->set_error_info($menu_obj->errcode, $menu_obj->errmsg);
+				return false;
+			}else{
+				return true;
+			}
+		}else{
+			return true;
+		}
+	}
+	
+	//上传多媒体文件(media_path必须为绝对路径)
+	function upload_media($access_token,$media_type,$media_path){
+		$media_url = "http://file.api.weixin.qq.com/cgi-bin/media/upload?access_token=$access_token&type=$media_type";
+		$media_data = array(
+			"media"	=>	"@".$media_path
+		);
+		$result = curl_post_contents($media_url, $media_data);
+		if($result){
+			$result_obj = json_decode($result);
+			if(!is_object($result_obj)){
+				return false;
+			}else if(isset($result_obj->errcode) and $result_obj->errcode){
+				$this->set_error_info($result_obj->errcode, $result_obj->errmsg);
+				return false;
+			}else{
+				if($result_obj->media_id){
+					return $result_obj->media_id;
+				}else{
+					return $result_obj->thumb_media_id;
+				}
+			}
+		}else{
+			return false;
+		}
+	}
+	
+	//解析文本消息(json格式的data转化成数组)
+	function data_to_text($text_data){
+		$result = @json_decode($text_data);
+		if($result and is_object($result)){
+			return $result;
+		}else{
+			return (object)array();
+		}
+	}
+	
+	//解析图片消息(json格式的data转化成数组)
+	function data_to_image($image_data){
+		$result = @json_decode($image_data);
+		if($result and is_object($result)){
+			return $result;
+		}else{
+			return (object)array();
+		}
+	}
+	
+	//解析图文消息(json格式的data转化成数组)
+	function data_to_news($news_data){
+		$result = @json_decode($news_data);
+		if($result and is_object($result)){
+			$item = $result->item;
+			return $item;
+		}else{
+			return array();
+		}
+	}
+	
+	//解析语音消息(json格式的data转化成数组)
+	function data_to_voice($voice_data){
+		$result = @json_decode($voice_data);
+		if($result and is_object($result)){
+			return $result;
+		}else{
+			return (object)array();
+		}
+	}
+	
+	//解析音乐消息(json格式的data转化成数组)
+	function data_to_music($music_data){
+		$result = @json_decode($music_data);
+		if($result and is_object($result)){
+			return $result;
+		}else{
+			return (object)array();
+		}
+	}
+	
+	//回复文本消息
+	function replyText($fromUsername,$toUsername,$content){
+		$textTpl = "<xml>
+					<ToUserName><![CDATA[".$toUsername."]]></ToUserName>
+					<FromUserName><![CDATA[".$fromUsername."]]></FromUserName>
+					<CreateTime><![CDATA[".time()."]]></CreateTime>
+					<MsgType><![CDATA[text]]></MsgType>
+					<Content><![CDATA[$content]]></Content>
+					<FuncFlag>0</FuncFlag>
+					</xml>";
+		echo $textTpl;
+		
+		//记录聊天记录
+		$talk_data = array(
+			"content"	=>	$content,
+		);
+		//talk_record($fromUsername, $toUsername, "text", $talk_data, 1);
+		exit();
+	}
+	
+	//回复图文消息
+	function replyNews($fromUsername,$toUsername,$news_list){
+		$newsTpl = "<xml>
+				 <ToUserName><![CDATA[".$toUsername."]]></ToUserName>
+				 <FromUserName><![CDATA[".$fromUsername."]]></FromUserName>
+				 <CreateTime><![CDATA[".time()."]]></CreateTime>
+				 <MsgType><![CDATA[news]]></MsgType>
+				 <ArticleCount>".count($news_list)."</ArticleCount>
+				 <Articles>";
+		foreach ($news_list as $val){
+			$newsTpl .= "<item>
+						 <Title>".$val['title']."</Title> 
+						 <Description>".$val['description']."</Description>
+						 <PicUrl>".$val['picurl']."</PicUrl>
+						 <Url>".$val['url']."</Url>
+					 </item>";
+		}
+		$newsTpl .= "</Articles>
+				 <FuncFlag>0</FuncFlag>
+				 </xml>";
+		echo $newsTpl;
+		
+		//记录聊天记录
+		//talk_record($fromUsername, $toUsername, "news", $news_list, 1);
+		exit();
+	}
+	
+	//回复音乐消息
+	function replyMusic($fromUsername,$toUsername,$title,$description,$musicurl,$hqmusicurl){
+		$musicTpl = "<xml>
+				 <ToUserName><![CDATA[".$toUsername."]]></ToUserName>
+				 <FromUserName><![CDATA[".$fromUsername."]]></FromUserName>
+				 <CreateTime><![CDATA[".time()."]]></CreateTime>
+				 <MsgType><![CDATA[music]]></MsgType>
+				 <Music>
+				 <Title><![CDATA[".$title."]]></Title>
+				 <Description><![CDATA[".$description."]]></Description>
+				 <MusicUrl><![CDATA[".$musicurl."]]></MusicUrl>
+				 <HQMusicUrl><![CDATA[".$hqmusicurl."]]></HQMusicUrl>
+				 </Music>
+				 <FuncFlag>0</FuncFlag>
+				 </xml>";
+		echo $musicTpl;
+		
+		//记录聊天记录
+		$talk_data = array(
+			"title"			=>	$title,
+			"description"	=>	$description,
+			"musicurl"		=>	$musicurl,
+			"hqmusicurl"	=>	$hqmusicurl,
+		);
+		//talk_record($fromUsername, $toUsername, "music", $talk_data, 1);
+		exit();
+	}
+	
+	//回复图片消息(高级接口)
+	function replyImg($fromUsername,$toUsername,$media_id){
+		$imgTpl = "<xml>
+				<ToUserName><![CDATA[".$toUsername."]]></ToUserName>
+				<FromUserName><![CDATA[".$fromUsername."]]></FromUserName>
+				<CreateTime>".time()."</CreateTime>
+				<MsgType><![CDATA[image]]></MsgType>
+				<Image>
+				<MediaId><![CDATA[".$media_id."]]></MediaId>
+				</Image>
+				</xml>";
+		echo $imgTpl;
+		exit();
+	}
+	
+	//回复语音消息(高级接口)
+	function replyVoice($fromUsername,$toUsername,$media_id){
+		$voiceTpl = "<xml>
+					<ToUserName><![CDATA[".$toUsername."]]></ToUserName>
+					<FromUserName><![CDATA[".$fromUsername."]]></FromUserName>
+					<CreateTime>".time()."</CreateTime>
+					<MsgType><![CDATA[voice]]></MsgType>
+					<Voice>
+					<MediaId><![CDATA[".$media_id."]]></MediaId>
+					</Voice>
+					</xml>";
+		echo $voiceTpl;
+		exit();
+	}
+	
+	//回复视频消息(高级接口)
+	function replyVideo($fromUsername,$toUsername,$media_id,$title,$description){
+		$videoTpl = "<xml>
+					<ToUserName><![CDATA[".$toUsername."]]></ToUserName>
+					<FromUserName><![CDATA[".$fromUsername."]]></FromUserName>
+					<CreateTime>".time()."</CreateTime>
+					<MsgType><![CDATA[video]]></MsgType>
+					<Video>
+					<MediaId><![CDATA[".$media_id."]]></MediaId>
+					<Title><![CDATA[".$title."]]></Title>
+					<Description><![CDATA[".$description."]]></Description>
+					</Video> 
+					</xml>";
+		echo $videoTpl;
+		exit();
+	}
+	
+	/**
+	 * 通过微信客服接口主动给48小时内互动过的用户发送消息(高级接口)
+	 * @param $open_id string
+	 * @param $access_token string
+	 * @return boolean
+	 * @author zjq
+	 */
+	
+	//发送文本消息
+	function sendText($open_id,$access_token,$content){
+		$url = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=$access_token";
+		$post_data = '{
+			"touser":"'.$open_id.'",
+			"msgtype":"text",
+			"text":{"content":"'.$content.'"}
+		}';
+		$send_result = curl_post_contents($url, $post_data);
+		if($send_result){
+			$result_obj = json_decode($send_result);
+			if(!is_object($result_obj)){
+				return false;
+			}else if(isset($result_obj->errcode) and $result_obj->errcode){
+				$this->set_error_info($result_obj->errcode, $result_obj->errmsg);
+				return false;
+			}else{
+				return true;
+			}
+		}else{
+			return false;
+		}
+	}
+	
+	//发送图文消息
+	function sendNews($open_id,$access_token,$news_data){
+		$news_arr = $this->data_to_news($news_data);
+		if($news_arr){
+			$url = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=$access_token";
+			$articles = '';
+			foreach ($news_arr as $val){
+				$articles .= '{
+		             "title":"'.$val->title.'",
+		             "description":"'.strip_html_tags($val->description).'",
+		             "url":"'.$val->url.'",
+		             "picurl":"'.$val->picurl.'"
+		         },';
+			}
+			$articles = '['.preg_replace('/,$/', '', $articles).']';
+			$post_data = '{
+				"touser":"'.$open_id.'",
+				"msgtype":"news",
+				"news":{"articles":'.$articles.'}
+			}';
+			$send_result = curl_post_contents($url, $post_data);
+			if($send_result){
+				$result_obj = json_decode($send_result);
+				if(!is_object($result_obj)){
+					return false;
+				}else if(isset($result_obj->errcode) and $result_obj->errcode){
+					$this->set_error_info($result_obj->errcode, $result_obj->errmsg);
+					return false;
+				}else{
+					return true;
+				}
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}
+	
+	//发送图片消息
+	function sendImage($open_id,$access_token,$media_id){
+		$url = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=$access_token";
+		$post_data = '{
+			"touser":"'.$open_id.'",
+			"msgtype":"image",
+			"image":{
+				"media_id":"'.$media_id.'"
+			}
+		}';
+		$send_result = curl_post_contents($url, $post_data);
+		if($send_result){
+			$result_obj = json_decode($send_result);
+			if(!is_object($result_obj)){
+				return false;
+			}else if(isset($result_obj->errcode) and $result_obj->errcode){
+				$this->set_error_info($result_obj->errcode, $result_obj->errmsg);
+				return false;
+			}else{
+				return true;
+			}
+		}else{
+			return false;
+		}
+	}
+	
+	//发送语音消息
+	function sendVoice($open_id,$access_token,$media_id){
+		$url = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=$access_token";
+		$post_data = '{
+			"touser":"'.$open_id.'",
+			"msgtype":"voice",
+			"voice":{
+				"media_id":"'.$media_id.'"
+			}
+		}';
+		$send_result = curl_post_contents($url, $post_data);
+		if($send_result){
+			$result_obj = json_decode($send_result);
+			if(!is_object($result_obj)){
+				return false;
+			}else if(isset($result_obj->errcode) and $result_obj->errcode){
+				$this->set_error_info($result_obj->errcode, $result_obj->errmsg);
+				return false;
+			}else{
+				return true;
+			}
+		}else{
+			return false;
+		}
+	}
+	
+	//发送音乐消息
+	function sendMusic($open_id,$access_token,$title,$description,$musicurl,$hqmusicurl,$thumb_media_id){
+		$url = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=$access_token";
+		$post_data = '{
+			"touser":"'.$open_id.'",
+			"msgtype":"music",
+			"music":{
+				"title":"'.$title.'",
+				"description":"'.$description.'",
+				"musicurl":"'.$musicurl.'",
+				"hqmusicurl":"'.$hqmusicurl.'",
+				"thumb_media_id":"'.$thumb_media_id.'"
+			}
+		}';
+		$send_result = curl_post_contents($url, $post_data);
+		if($send_result){
+			$result_obj = json_decode($send_result);
+			if(!is_object($result_obj)){
+				return false;
+			}else if(isset($result_obj->errcode) and $result_obj->errcode){
+				$this->set_error_info($result_obj->errcode, $result_obj->errmsg);
+				return false;
+			}else{
+				return true;
+			}
+		}else{
+			return false;
+		}
+	}
+	
+	/**
+	 * 其他微信相关方法
+	 */
+	
+	//小黄鸡聊天机器人
+	function simsimHttp($keyword){
+		$url = "http://www.xiaohuangji.com/ajax.php";
+		$data = "para=".urlencode($keyword);
+		$result = curl_post_contents($url,$data);
+		$result = trim($result);
+		if($result==''){
+			return '说点其它的吧~~';
+		}else{
+			return $this->strip_sensitive_word($result);
+		}
+	}
+	
+	//去除小黄鸡聊天中的敏感词
+	private function strip_sensitive_word($content_str){
+		if(preg_match("/(妈的)|(妈逼)|(sb)|(傻逼)/ui", $content_str)){
+			return "妈妈说，不可以说脏话哦！";
+		}else{
+			return $content_str;
+		}
+	}
+}
+
+//实例化微信类
+$weixin_handle = WeiXin::getInstance();

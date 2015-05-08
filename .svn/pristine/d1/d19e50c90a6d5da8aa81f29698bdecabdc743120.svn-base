@@ -1,0 +1,186 @@
+<?php 
+$menu_index = get_number('menu_index');
+?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn" class="ieundefined">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="robots" content="index, follow" />
+    <meta name="keywords" content="海淘100,海淘,海淘插件,海淘助手,购物助手,海淘比价,海淘网站,亚马逊,美亚,日亚,德亚,价格曲线,降价提醒" />
+    <title>海淘100 - 海淘购物助手</title>
+	
+<!--    右边固定栏的css    -->
+	
+	
+	
+	
+<style type="text/css">
+<!--
+a hover {
+	opacity:1;
+}
+* {
+	text-decoration: none;
+	margin: 0px;
+	padding: 0px;
+}
+.c {
+	clear: both;
+}
+#a1 {
+	position: fixed;
+	height: auto;
+	width: 70px;
+	left: 91%;
+	top: 25%;
+	z-index: 2000;
+}
+#a1 .b2 {
+	height: 53px;
+	width: 70px;
+	padding-top: 12px;
+	font-size: 14px;
+	line-height: 18px;
+	vertical-align: middle;
+	font-family: "微软雅黑";
+	background-color: #FFFFFF;
+	opacity:0.6;
+	border-right-width: 1px;
+	border-bottom-width: 1px;
+	border-left-width: 1px;
+	border-right-style: solid;
+	border-bottom-style: solid;
+	border-left-style: solid;
+	border-right-color: #FFCCFF;
+	border-bottom-color: #FFCCFF;
+	border-left-color: #FFCCFF;
+}
+#a1 .b3 {
+	font-size: 12px;
+	font-family: "微软雅黑";
+	line-height: 15px;
+	background-image: url(url);
+	height: 62px;
+	width: 70px;
+	padding-top: 8px;
+	background-color: #FFFFFF;
+	opacity:0.6;
+	border: 1px solid #FFCCFF;
+}
+#a1 img {
+	height: 30px;
+	width: 30px;
+}
+
+#a1 li {
+	float: left;
+	list-style-type: none;
+	text-align: center;
+	width: 100px;
+	height: 90px;
+}
+-->
+</style>
+	
+	
+	
+	
+	
+	
+	
+    <meta name="description" content="海淘100是国内领先的海淘购物助手软件，基于多个浏览器平台，能够帮助用户在美国，英国，法国，德国，日本，加拿大亚马逊等海淘网站上，自动计算人民币到手价，展示海淘商品的价格曲线，自动关注热门商品并降价提醒，自动进行包裹跟踪，支持淘宝比价。是国内知名度最高，用户数量最多，用户口碑最好的海淘插件工具，帮助广大淘友简化海淘流程。" />
+    <base href="<?php echo WEB_URL;?>" />
+    <link href="./yi_haitao_files/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <link type="text/css" href="./yi_haitao_files/slider.css" rel="stylesheet" />
+    <link rel="stylesheet" href="./yi_haitao_files/v2.css" type="text/css" />
+
+    <script type="text/javascript" src="./yi_haitao_files/jquery.min.js"></script>
+    <script type="text/javascript" src="./yi_haitao_files/jquery.slider.js"></script>
+
+    <script type="text/javascript">
+        var ieMode = document.documentMode;
+        if (ieMode) {
+            document.documentElement.className += ' iemode';
+        }
+        document.documentElement.className += ' ie' + document.documentMode;
+        $(function(){
+        	$('#mainmenu li:eq(<?php echo $menu_index?>)').addClass('active');
+        });
+    </script>
+</head>
+<body id="page_bg" class="home">
+	<a name="up" id="up"></a>
+    <!--<div id="wrapper">
+        <div id="global">
+            <div class="content_c">
+                <div id="topmenu">
+                <!--  
+                <a class="highlight" href="http://www.ehtao.net/faq/other/reinstall.html">解禁&amp;启用</a>
+                -->
+               <!-- <span>海外网站访问不了？</span>
+                <a href="./yi_haitao_files/fg.zip" style="color:#C2090F;">点此下载翻墙神器</a>
+                <span>|</span>
+                <a href="http://weibo.com/haitao100" target="_blank" rel="nofollow">新浪微博</a>
+                <span>|</span>
+                <a href="#" target="_blank" onClick="return false;" rel="nofollow" style="margin-right:0px;">腾讯微博</a>
+                </div>
+            </div>
+        </div>-->
+		<!--     右边固定栏目     -->
+		
+		
+		
+<div id="a1">
+	<ul>
+		<li class="b3">
+			<img src="./yi_haitao_files/images_v2/fan.jpg" />
+			<div class="c"></div>
+			<a href="./yi_haitao_files/fg.zip" style="color:#C2090F;">点此下载<br />
+			翻墙神器</a>
+		</li>
+		<li class="b2">
+			<img src="./yi_haitao_files/images_v2/xin.png" />
+			<div class="c"></div>
+			<a href="http://weibo.com/haitao100" target="_blank" rel="nofollow">新浪微博</a>
+		</li>
+		<li class="b2">
+			<img src="./yi_haitao_files/images_v2/QQ.jpg" />
+			<div class="c"></div>
+			<a href="#" target="_blank" onClick="return false;" rel="nofollow" style="margin-right:0px;">腾讯微博</a>
+		</li>
+		<li class="b2">
+			<img src="./yi_haitao_files/images_v2/f062.png" />
+			<div class="c"></div>
+			<a href="#">返回顶部</a>
+		</li>
+	</ul>
+</div>		
+		
+		
+		
+		
+		
+
+        <div id="header" style="opacity: 1;">
+            <div class="content_c">
+                <div id="logo"><a title="海淘100" href="index.php">海淘100</a>
+                </div>
+                <ul class="menu" id="mainmenu">
+                    <li><a href="index.php"><span>首页</span></a>
+                    </li>
+                    <li><a href="index.php?app=function_intro&menu_index=1"><span>使用指南</span></a>
+                    </li>
+                    <li><a href="index.php?app=recruitment&menu_index=2"><span>招贤纳士</span></a>
+                    </li>
+                    <li class="parent item60"><a><span>我的海淘</span></a>
+                        <ul style="display: none;">
+                            <li><a href="index.php?app=my_order&menu_index=3"><span>我的运单</span></a>
+                            </li>
+                            <li><a href="index.php?app=my_message&menu_index=3"><span>我的消息</span></a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <div class="clr"></div>
+            </div>
+        </div>

@@ -1,0 +1,249 @@
+html,body{
+	_background-image:url(about:blank);/*用浏览器空白页面作为背景*/
+	_background-attachment:fixed;/* prevent screen flash in IE6 确保滚动条滚动时，元素不闪动*/
+}
+.hongfeng_disable_select{
+	-moz-user-select: none; /*火狐*/
+	-webkit-user-select: none; /*webkit浏览器*/
+	-ms-user-select: none; /*IE10*/
+	-khtml-user-select: none; /*早期浏览器*/
+	user-select: none;
+}
+
+/****插件分页样式****/
+#hongfeng_page_main{font:12px/1.5 Tahoma,Helvetica,Arial,sans-serif;padding:6px;text-align:center;box-sizing:content-box;}
+#hongfeng_page_main *{box-sizing:content-box;}
+#hongfeng_page_main a{color:#3366CC;outline:none;display:inline-block;height:20px;line-height:20px;vertical-align:middle;}
+#hongfeng_page_main a:hover{border:1px solid #FD6D01;color:#FD6D01;text-decoration:none;}
+#hongfeng_page_main span{display:inline-block;height:20px;line-height:20px;vertical-align:middle;}
+#hongfeng_page_main .hongfeng_first_page{position:relative;margin:0 2px;border:1px solid #ccc;border-radius:4px;overflow:hidden;color:#404040;padding:2px 5px 2px 14px;}
+#hongfeng_page_main .hongfeng_first_page i{position:absolute;left:2px;top:50%;margin-top:-4px;width:10px;height:10px;background:url('../images/plugin/page_ico.png') 0px -40px no-repeat;}
+#hongfeng_page_main #hongfeng_first_page i{background-position:0 -50px;}
+#hongfeng_page_main #hongfeng_first_page:hover{text-decoration:none;}
+#hongfeng_page_main .hongfeng_pre_page{position:relative;margin:0 2px;border:1px solid #ccc;border-radius:4px;overflow:hidden;color:#404040;padding:2px 5px 2px 14px;}
+#hongfeng_page_main .hongfeng_pre_page i{position:absolute;left:2px;top:50%;margin-top:-4px;width:10px;height:10px;background:url('../images/plugin/page_ico.png') 0px 0px no-repeat;}
+#hongfeng_page_main #hongfeng_pre_page i{background-position:0 -10px;}
+#hongfeng_page_main #hongfeng_pre_page:hover{text-decoration:none;}
+#hongfeng_page_main .hongfeng_page_num{margin:0 2px;border:1px solid #ccc;border-radius:2px;overflow:hidden;padding:2px 8px;}
+#hongfeng_page_main .hongfeng_page_num:hover{text-decoration:none;}
+#hongfeng_page_main #hongfeng_current_page{margin:0 2px;border:1px solid #FD6D01;border-radius:2px;overflow:hidden;padding:2px 8px;background:#FFEDE1;color:#FD6D4E;font-weight:bold;}
+#hongfeng_page_main .hongfeng_next_page{position:relative;margin:0 2px;border:1px solid #ccc;border-radius:4px;overflow:hidden;color:#404040;padding:2px 14px 2px 5px;}
+#hongfeng_page_main .hongfeng_next_page i{position:absolute;right:2px;top:50%;margin-top:-4px;width:10px;height:10px;background:url('../images/plugin/page_ico.png') 0px -20px no-repeat;}
+#hongfeng_page_main #hongfeng_next_page i{background-position:0 -30px;}
+#hongfeng_page_main #hongfeng_next_page:hover{text-decoration:none;}
+#hongfeng_page_main .hongfeng_last_page{position:relative;margin:0 2px;border:1px solid #ccc;border-radius:4px;overflow:hidden;color:#404040;padding:2px 14px 2px 5px;}
+#hongfeng_page_main .hongfeng_last_page i{position:absolute;right:2px;top:50%;margin-top:-4px;width:10px;height:10px;background:url('../images/plugin/page_ico.png') 0px -60px no-repeat;}
+#hongfeng_page_main #hongfeng_last_page i{background-position:0 -70px;}
+#hongfeng_page_main #hongfeng_last_page:hover{text-decoration:none;}
+#hongfeng_page_main #hongfeng_page_tip{margin:0 2px;}
+#hongfeng_page_main #hongfeng_page_tip .hongfeng_now_page{color:#FD6D4E;font-weight:bold;}
+/****插件分页样式****/
+
+#hongfeng_plugin_container{
+	position:fixed;right:50px;top:50px;z-index:10000;
+	_position:absolute;/*IE6 用absolute模拟fixed*/
+	_top:expression(documentElement.scrollTop+50+"px");/*IE6 动态设置top位置*/
+}
+#hongfeng_plugin_position{position:relative;}
+#hongfeng_plugin_position img{cursor:pointer;}
+#hongfeng_plugin_tag{}
+#hongfeng_plugin_main *{vertical-align:baseline;font-family:"Times New Roman",Georgia,Serif;}
+#hongfeng_plugin_main .hongfeng_plugin_text{
+	padding:2px 5px;border:1px solid #D0D0D0;border-top-color:#bbb;width:120px;height:20px;border-radius:3px;font-size:12px;overflow:hidden;outline:none;
+	box-shadow:0 1px 0 rgba(255,255,255,0.5),0 1px 0 rgba(0,0,0,0.07) inset;box-sizing: border-box;margin:0 5px;
+}
+#hongfeng_plugin_main .hongfeng_plugin_text:focus{border-color:#e49747;box-shadow:0 0 3px rgba(228,121,17,0.5),0 1px 0 rgba(0,0,0,0.07) inset;}
+#hongfeng_plugin_main .hongfeng_button{
+	display:inline-block;height:30px;line-height:30px;padding:0 20px;color:#fff;font-weight:bold;font-size:14px;
+	background:url('../images/plugin/button_back.png');border:1px solid #F2863E;border-radius:5px;overflow:hidden;cursor:pointer;
+}
+#hongfeng_plugin_main .hongfeng_button:hover{color:#fff;text-decoration:none;background-position:0 -30px;}
+#hongfeng_plugin_main .hongfeng_disable_button{background-position:0 -60px;border:1px solid #E5A234;}
+#hongfeng_plugin_main .hongfeng_disable_button:hover{background-position:0 -60px;}
+.hongfeng_price_bold{font-weight:bold;font-size:14px;}
+#hongfeng_plugin_main{font-size:12px;border:1px solid #5FADF7;padding:10px 0;border-radius:5px;margin:10px 0;box-shadow:1px 1px 5px #71AFED;background:#fff;text-align:left;font-family:helvetica,verdana,arial,sans-serif;}
+#hongfeng_plugin_main a{color:#0066C0;text-decoration:none;}
+#hongfeng_plugin_main a:hover{color:#C45500;text-decoration:underline;}
+#hongfeng_top_bar #hongfeng_top_bar_ul{list-style:none;margin:0 auto;padding:0 10px;outline:0;height:30px;border-bottom:2px solid #5FADF7;}
+#hongfeng_top_bar .hongfeng_top_bar_li{list-style:none;margin:0 auto;padding:0 5px;outline:0;display:block;height:30px;line-height:30px;float:left;color:#5FADF7;font-weight:bold;cursor:pointer;position:relative;margin:0 5px;}
+#hongfeng_top_bar .hongfeng_top_bar_li i{position:absolute;top:100%;left:50%;margin-left:-5px;margin-top:-4px;display:block;width:10px;height:10px;background:url('../images/plugin/arrow_ico.png') -10px 0;display:none;}
+#hongfeng_top_bar .hongfeng_selected_li{background:#5FADF7;color:#fff;}
+#hongfeng_top_bar .hongfeng_selected_li i{display:block;}
+#hongfeng_top_bar #hongfeng_cart_count{padding:0 1px;}
+#hongfeng_top_bar .hongfeng_light_class{background:#F30;color:#fff;font-weight:bold;}
+#hongfeng_logo{float:left;}
+#hongfeng_logo img{width:120px;height:42px;}
+#hongfeng_bind_mobile{float:left;margin-left:5px;margin-top:20px;}
+#hongfeng_bind_show{float:left;margin-left:5px;margin-top:18px;display:none;}
+#hongfeng_bind_result{float:left;margin-left:5px;margin-top:20px;}
+#hongfeng_bind_result font{color:#B12704;}
+.hongfeng_bind_button{margin:0 3px;cursor:pointer;}
+#hongfeng_info_content{padding:10px;}
+.hongfeng_plugin_list{padding:3px 0;line-height:18px;overflow:hidden;zoom:1;}
+.hongfeng_plugin_list_name{color:#8B8B8B;}
+.hongfeng_plugin_list_value{color:#ff3300;}
+.hongfeng_plugin_list_tip{color:#8B8B8B;}
+#hongfeng_dollar_show{display:none;}
+#hongfeng_jpy_show{display:none;}
+.hongfeng_list_left{float:left;width:60px;text-align:right;}
+.hongfeng_list_right{margin-left:65px;}
+/*旧版直邮中国样式
+#hongfeng_plugin_main #hongfeng_direct_mail_china{color:#EC000A;font-weight:bold;position:relative;display:none;}
+#hongfeng_plugin_main #hongfeng_direct_mail_china i{position:absolute;left:100%;top:-7px;display:block;width:30px;height:30px;background:url('../images/plugin/china_ico.png');}
+*/
+#hongfeng_plugin_main #hongfeng_direct_mail_china{color:#888;display:none;}
+#hongfeng_plugin_main #hongfeng_direct_mail_china i{display:none;}
+#hongfeng_plugin_main #hongfeng_weight_input{width:60px;display:none;}
+#hongfeng_plugin_main select{font-weight:normal;width:auto;display:inline;color:#333;}
+#hongfeng_plugin_main option{margin:auto;padding:auto;}
+#hongfeng_info_content .hongfeng_add_fav{font-size:12px;color:#004B91;cursor:pointer;}
+#hongfeng_info_content .hongfeng_add_fav:hover{color:#009DE4;text-decoration:none;}
+#hongfeng_add_fav i{display:inline-block;width:16px;height:16px;background:url('../images/plugin/add_fav.png');margin-right:2px;vertical-align:middle;}
+#hongfeng_info_content .hongfeng_added_fav{color:#999;}
+#hongfeng_info_content .hongfeng_added_fav:hover{color:#999;}
+#hongfeng_info_content .hongfeng_added_fav i{background-position:0 -16px;}
+#hongfeng_tax_type{}
+#hongfeng_tax_type label{display:inline;font-weight:normal;margin:0;padding:0;margin-right:6px;}
+#hongfeng_tax_type input{vertical-align:top;}
+#hongfeng_default_tariff_main{display:none;}
+#hongfeng_plugin_main .hongfeng_prodQty_button{
+	margin:0 3px;display:inline-block;width:18px;height:18px;outline:none;
+	vertical-align:middle;background:url('../images/plugin/prodQty_button.png') no-repeat;
+}
+#hongfeng_plugin_main #hongfeng_prodQty_reduce{background-position:0 0;}
+#hongfeng_plugin_main #hongfeng_prodQty_add{background-position:-18px 0;}
+#hongfeng_plugin_main #hongfeng_prodQty{vertical-align:middle;}
+#hongfeng_info_content #hongfeng_plugin_submit{display:inline-block;vertical-align:middle;width:128px;height:30px;line-height:30px;background:url('../images/plugin/button_back.gif');cursor:pointer;}
+#hongfeng_info_content #hongfeng_plugin_submit:hover{background-position:0 -30px;text-decoration:none;}
+#hongfeng_plugin_submit i{display:inline-block;width:30px;height:30px;background:url('../images/plugin/hand_ico.png');float:left;margin-left:5px;}
+#hongfeng_plugin_submit span{color:#fff;font-weight:bold;}
+#hongfeng_info_content #hongfeng_ask_pay{
+	vertical-align:middle;background:#1F83B7;color:#fff;padding:4px 10px;margin-left:10px;
+	border-radius:3px;overflow:hidden;cursor:pointer;box-shadow:1px 1px 3px #888;
+}
+#hongfeng_info_content #hongfeng_contact_us{float:right;color:#888;}
+#hongfeng_info_content #hongfeng_contact_us a{margin:0 3px;}
+#hongfeng_info_content #hongfeng_contact_us img{vertical-align:middle;}
+#hongfeng_cart_content{padding:15px;display:none;}
+#hongfeng_no_cart_info{color:#8B8B8B;text-align:center;display:none;}
+#hongfeng_cart_table{width:100%;border:0;margin:0;}
+#hongfeng_cart_table tr{border-bottom:1px dashed #E6E6E6;border:0;}
+#hongfeng_cart_table th{text-align:center;font-weight:100;padding:6px 0;border:0;font-size:12px;}
+#hongfeng_cart_table td{padding:5px 0;border:0;font-size:12px;}
+#hongfeng_cart_main .hongfeng_cart_goods_check{vertical-align:middle;position:static;}
+#hongfeng_cart_main .hongfeng_cart_goods_img{border:1px solid #eee;display:inline-block;width:50px;height:50px;line-height:50px;}
+#hongfeng_cart_main .hongfeng_cart_goods_img img{max-width:50px;max-height:50px;vertical-align:middle;}
+#hongfeng_cart_main .hongfeng_cart_goods_name{color:#0066C0;}
+#hongfeng_cart_main .hongfeng_cart_goods_name:hover{color:#E47911;text-decoration:underline;}
+#hongfeng_cart_main .hongfeng_cart_goods_num{}
+#hongfeng_cart_main .hongfeng_cart_goods_time{color:#999;}
+#hongfeng_cart_main .hongfeng_cart_goods_delete{color:#0066C0;cursor:pointer;}
+#hongfeng_cart_main .hongfeng_cart_goods_delete:hover{color:#E47911;text-decoration:underline;}
+#hongfeng_cart_main .hongfeng_cart_goods_price{color:#ff3300;font-weight:bold;}
+#hongfeng_cart_main #hongfeng_cart_table{border-collapse:collapse;}
+#hongfeng_cart_main #hongfeng_cart_table td{text-align:center;vertical-align:middle;}
+#hongfeng_cart_main #hongfeng_cart_table p{margin:0;}
+#hongfeng_cart_main #hongfeng_cart_table .hongfeng_shipping_num_div{position:relative;}
+#hongfeng_cart_main #hongfeng_cart_table .hongfeng_add_shipping_num{color:#0066C0;line-height:24px;}
+#hongfeng_cart_main #hongfeng_cart_table .hongfeng_add_shipping_num i{display:inline-block;width:10px;height:10px;background:url('../images/plugin/arrow_ico.png') -10px 2px no-repeat;}
+#hongfeng_cart_main #hongfeng_cart_table .hongfeng_shipping_num_main{position:absolute;left:50%;margin-left:-80px;top:0px;z-index:999;padding-top:20px;display:none;}
+#hongfeng_cart_main #hongfeng_cart_table .hongfeng_shipping_num_content{position:relative;border:1px solid #d9dadc;border-radius:5px;text-align:left;font-size:14px;padding:10px;width:160px;background:#fff;}
+#hongfeng_cart_main #hongfeng_cart_table .hongfeng_top_border_ico{display:block;width:20px;height:20px;position:absolute;left:50%;margin-left:-10px;top:-14px;z-index:1;background:url('../images/plugin/border_tag.png') no-repeat;}
+#hongfeng_cart_main #hongfeng_cart_table .hongfeng_shipping_num_text input{
+	margin:0;padding:2px 5px;border:1px solid #D0D0D0;border-top-color:#bbb;width:138px;height:20px;border-radius:3px;font-size:12px;
+	box-shadow:0 1px 0 rgba(255,255,255,0.5),0 1px 0 rgba(0,0,0,0.07) inset;outline:none;overflow:hidden;
+}
+#hongfeng_cart_main #hongfeng_cart_table .hongfeng_shipping_num_text input:focus{border-color:#e49747;box-shadow:0 0 3px rgba(228,121,17,0.5),0 1px 0 rgba(0,0,0,0.07) inset;}
+#hongfeng_cart_main #hongfeng_cart_table .hongfeng_shipping_num_submit{text-align:center;margin:5px;}
+#hongfeng_cart_main #hongfeng_cart_table .hongfeng_shipping_num_submit a{background:#1F83B7;color:#fff;font-size:12px;padding:2px 6px;margin-left:10px;border-radius:3px;overflow:hidden;cursor:pointer;box-shadow:1px 1px 3px #888;}
+#hongfeng_cart_main #hongfeng_cart_table .hongfeng_shipping_num_submit a:hover{color:#fff;text-decoration:none;}
+#hongfeng_cart_main #hongfeng_cart_table a{text-decoration:none;cursor:pointer;color:#0066C0;}
+#hongfeng_cart_main #hongfeng_cart_table a:hover{text-decoration:underline;color:#E47911;}
+#hongfeng_cart_main #hongfeng_cart_table label{padding:0;}
+#hongfeng_cart_main #hongfeng_check_all{vertical-align:middle;position:static;}
+#hongfeng_cart_main .hongfeng_check_all_tip{vertical-align:middle;color:#808080;margin-left:5px;font-weight:normal;}
+#hongfeng_cart_main #hongfeng_checked_tip{float:right;}
+#hongfeng_cart_main #hongfeng_checked_num{margin:0 3px;color:#ff3300;font-weight:bold;}
+#hongfeng_cart_main .hongfeng_cart_button{overflow:hidden;zoom:1;}
+#hongfeng_cart_main #hongfeng_cart_submit{float:left;display:none;}
+#hongfeng_cart_main #hongfeng_cart_page{float:right;}
+
+/****划词翻译****/
+#hongfeng_translation_main{width:300px;position:absolute;left:0;top:0;z-index:999999;background:#fff;border:1px solid #C3C3C3;border-radius:5px;overflow:hidden;}
+#hongfeng_translation_bar{height:24px;line-height:24px;color:#fff;padding:0 8px;background:url('../images/plugin/translation_back.gif') repeat-x;}
+#hongfeng_translation_bar i{display:block;float:left;width:18px;height:18px;margin-top:3px;background:url('../images/plugin/translation_back.gif') -106px -24px no-repeat;}
+#hongfeng_translation_bar a{display:block;float:right;width:18px;height:18px;margin-top:3px;background:url('../images/plugin/translation_back.gif') -52px -41px no-repeat;cursor:pointer;}
+#hongfeng_translation_bar a:hover{background-position:-70px -41px;}
+#hongfeng_translation_bar h2{color:#fff;font-size:12px;font-weight:normal;padding:0;margin:0;line-height:24px;margin-left:20px;}
+#hongfeng_translation_content{padding:8px;font-size:12px;line-height:20px;}
+#hongfeng_translation_content .icIBahyI-dictbar{padding-bottom:5px;}
+#hongfeng_translation_content .icIBahyI-fl strong{color:#999;}
+#hongfeng_translation_content .icIBahyI-new_word{display:none;}
+#hongfeng_translation_content .icIBahyI-simple label{font-weight:normal;}
+#hongfeng_translation_content .icIBahyI-footer{text-align:right;}
+#hongfeng_translation_content .icIBahyI-footer a{color:#0066C0;font-size:12px;}
+#hongfeng_translation_content .icIBahyI-footer a:hover{color:#E47911;}
+/****划词翻译****/
+
+/****弹出窗口****/
+#hongfeng_window_back{position:absolute;width:100%;height:100%;left:0;top:0;z-index:99999;background:#000;opacity:.6;filter:alpha(opacity=60);}
+#hongfeng_window_main{position:absolute;width:480px;left:0;top:0;z-index:100000;font-size:12px;border-radius:5px;box-shadow:1px 1px 3px #999;text-align:left;font-family:helvetica,verdana,arial,sans-serif;}
+#hongfeng_window_main *{vertical-align:baseline;}
+#hongfeng_window_main .hongfeng_window_top{border-top-left-radius:5px;border-top-right-radius:5px;overflow:hidden;}
+#hongfeng_window_main .hongfeng_window_top_left{float:left;width:5px;height:32px;background:url('../images/plugin/window/top_left.png');}
+#hongfeng_window_main .hongfeng_window_top_right{float:right;width:5px;height:32px;background:url('../images/plugin/window/top_right.png');}
+#hongfeng_window_main .hongfeng_window_top_center{position:relative;margin:0 5px;height:32px;line-height:32px;background:url('../images/plugin/window/top_center.png') repeat-x;}
+#hongfeng_window_main .hongfeng_window_top_center h2{font-size:14px;color:#fff;margin:0;padding:0;line-height:32px;}
+#hongfeng_window_main .hongfeng_window_top_center a{position:absolute;right:3px;top:6px;display:block;width:20px;height:20px;background:url('../images/plugin/window/close.png');cursor:pointer;}
+#hongfeng_window_main .hongfeng_window_top_center a:hover{background-position:0 -20px;}
+#hongfeng_window_main .hongfeng_window_content{border-bottom-left-radius:5px;border-bottom-right-radius:5px;overflow:hidden;border:1px solid #949EA0;border-top:0;}
+#hongfeng_window_main .hongfeng_window_padding{padding:6px;background:#fff;}
+#hongfeng_window_main form{background:#fff;padding:10px;margin:0;}
+#hongfeng_window_main .hongfeng_window_list{padding:3px 0;line-height:18px;overflow:hidden;zoom:1;}
+#hongfeng_window_main .hongfeng_window_list_left{float:left;width:64px;text-align:right;}
+#hongfeng_window_main .hongfeng_window_list_right{margin-left:70px;}
+#hongfeng_window_main .hongfeng_window_list_tip{margin-left:5px;}
+#hongfeng_window_main .hongfeng_window_text{
+	padding:2px 5px;border:1px solid #D0D0D0;border-top-color:#bbb;width:250px;height:20px;border-radius:3px;font-size:12px;
+	overflow:hidden;box-shadow:0 1px 0 rgba(255,255,255,0.5),0 1px 0 rgba(0,0,0,0.07) inset;box-sizing: border-box;background:#fff;
+}
+#hongfeng_window_main .hongfeng_window_text:focus{border-color:#e49747;box-shadow:0 0 3px rgba(228,121,17,0.5),0 1px 0 rgba(0,0,0,0.07) inset;}
+#hongfeng_window_main .hongfeng_window_list_right label{display:inline;font-weight:normal;margin:0;padding:0;margin-right:8px;}
+#hongfeng_window_main .hongfeng_window_list_right label input{margin-right:3px;vertical-align:middle;position:static;}
+#hongfeng_window_main #hongfeng_order_remarks{width:90%;resize:none;font-size:12px;color:#666;height:60px;padding:5px 7px;border-radius:3px;overflow:hidden;line-height:18px;border:1px solid #bbb;}
+#hongfeng_window_main #hongfeng_order_remarks:focus{border-color:#e49747;box-shadow:0 0 3px rgba(228,121,17,0.5),0 1px 0 rgba(0,0,0,0.07) inset;}
+#hongfeng_window_main #hongfeng_transport_submit{
+	display:block;float:left;height:30px;line-height:30px;padding:0 20px;color:#fff;font-weight:bold;font-size:14px;
+	background:url('../images/plugin/button_back.png');border:1px solid #F2863E;border-radius:5px;overflow:hidden;cursor:pointer;
+}
+#hongfeng_window_main #hongfeng_sina_weibo_share{float:left;outline:none;margin-left:10px;margin-top:13px;text-decoration:none;color:#039;}
+#hongfeng_window_main #hongfeng_sina_weibo_share:hover{text-decoration:underline;color:#CC6600;}
+#hongfeng_window_main select{margin:3px;margin-left:0;font-size:12px;border:1px solid #ddd;border-radius:4px;padding:2px;outline:none;width:auto;display:inline;font-weight:normal;}
+#hongfeng_window_main option{margin:auto;padding:auto;}
+#hongfeng_animate_cart{position:absolute;z-index:9999999;width:40px;height:40px;}
+
+#hongfeng_window_success_main{position:absolute;width:480px;left:0;top:0;z-index:100000;font-size:12px;border-radius:5px;box-shadow:1px 1px 3px #999;background:#fff;line-height:20px;}
+#hongfeng_window_success_top{padding:5px;border-bottom:1px solid #ccc;}
+#hongfeng_window_success_top img{width:120px;}
+#hongfeng_window_success_content{padding:5px;text-align:center;}
+#hongfeng_window_success_content .hongfeng_window_success_info{padding:5px;}
+#hongfeng_window_success_tip{font-size:20px;color:#646464;}
+#hongfeng_window_success_ico{display:inline-block;width:37px;height:42px;background:url('../images/plugin/icon_tips.png');margin:0 5px;vertical-align:bottom;}
+#hongfeng_window_success_share{color:#646464;}
+#hongfeng_window_success_ok{
+	display:inline-block;height:30px;line-height:30px;padding:0 20px;color:#fff;font-weight:bold;font-size:14px;
+	background:url('../images/plugin/button_back.png');border:1px solid #F2863E;border-radius:5px;overflow:hidden;cursor:pointer;
+}
+#hongfeng_window_success_ok:hover{text-decoration:none;}
+/****弹出窗口****/
+
+.haitao_message_list{border-bottom:1px solid #E7E7E7;padding:8px 10px 7px 10px;}
+.haitao_message_list input{vertical-align:middle;}
+.haitao_message_list a{color:#0078B6;cursor:pointer;font-family:Tahoma;margin-left:10px;}
+.haitao_message_list a:hover{text-decoration:underline;}
+.haitao_message_list .haitao_message_read{color:#aaa;}
+.haitao_message_list span{float:right;}
+.popup_window_tip{padding:10px 5px;text-align:center;display:none;}
+.popup_window_tip span{display:inline-block;padding:2px 2px 2px 20px;font-size:14px;background:url('icons/msg_bg.png') 1px -149px no-repeat;}
+#haitao_message_page_main{overflow:hidden;zoom:1;}
+#haitao_message_page{float:right;}

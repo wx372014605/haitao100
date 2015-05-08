@@ -1,0 +1,379 @@
+		<div id="footer">
+            <div class="content_c">
+                <div class="left">
+                    <div class="item_c">
+                        <div class="module-partners">
+                            <h3>／优质合作伙伴</h3>
+
+                            <div class="flexslider" id="partners-slider">
+                                <ul class="slides">
+                                    <li style="display: list-item;">
+                                        <div class="item">
+                                            <a href="http://www.love-eu.com/" title="爱欧洲转运" style="background: url(yi_haitao_files/images_v2/yzhzhb/aoz.png) no-repeat scroll top center transparent;" class="img" ref="nofollow" target="_blank"></a>
+                                        </div>
+
+
+                                        <div class="item">
+                                            <a href="http://www.ats-ex.com/" title="傲天转运" style="background: url(yi_haitao_files/images_v2/yzhzhb/ats.png) no-repeat scroll top center transparent;" class="img" ref="nofollow" target="_blank"></a>
+                                        </div>
+
+
+                                        <div class="item">
+                                            <a href="http://www.8dexpress.com/" title="八达转运" style="background: url(yi_haitao_files/images_v2/yzhzhb/8dexpress.png) no-repeat scroll top center transparent;" class="img" ref="nofollow" target="_blank"></a>
+                                        </div>
+
+
+                                        <div class="item">
+                                            <a href="http://www.ipehua.com/" title="鹏华转运" style="background: url(yi_haitao_files/images_v2/yzhzhb/ipehua.png) no-repeat scroll top center transparent;" class="img" ref="nofollow" target="_blank"></a>
+                                        </div>
+                                        
+                                        
+                                        <div class="item">
+                                            <a href="http://www.jpdeliver.com/" title="JPDeliver" style="background: url(yi_haitao_files/images_v2/yzhzhb/jpdeliver.png) no-repeat scroll top center transparent;" class="img" ref="nofollow" target="_blank"></a>
+                                        </div>
+
+
+                                        <div class="item">
+                                            <a href="#" title="诚邀合作伙伴" style="background: url(yi_haitao_files/images_v2/yzhzhb/cyhzhb.png) no-repeat scroll top center transparent;" class="img"></a>
+                                        </div>
+
+
+
+                                    </li>
+                                    <!--
+                                    <li>
+
+                                        <div class="item">
+                                            <a title="sample" style="background: url(yi_haitao_files/images_v2/yzhzhb/cooperate_sample.png) no-repeat scroll top center transparent;" class="img"></a>
+                                        </div>
+
+
+                                    </li>-->
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="module-firms">
+                            <h3>／转运公司列表</h3>
+
+                            <div class="flexslider" id="firms-slider">
+                                <ul class="slides">
+                                    <li style="display: list-item;">
+                                        <div class="item">
+                                            <a href="http://www.love-eu.com/" title="爱欧洲转运" style="background: url(yi_haitao_files/images_v2/zyhzhb/aoz.png) no-repeat scroll top center transparent;" class="img" ref="nofollow" target="_blank"></a>
+                                        </div>
+
+
+                                        <div class="item">
+                                            <a href="http://www.ats-ex.com/" title="傲天转运" style="background: url(yi_haitao_files/images_v2/zyhzhb/ats.png) no-repeat scroll top center transparent;" class="img" ref="nofollow" target="_blank"></a>
+                                        </div>
+
+
+                                        <div class="item">
+                                            <a href="http://www.8dexpress.com/" title="八达转运" style="background: url(yi_haitao_files/images_v2/zyhzhb/8dexpress.png) no-repeat scroll top center transparent;" class="img" ref="nofollow" target="_blank"></a>
+                                        </div>
+
+
+                                        <div class="item">
+                                            <a href="http://www.ipehua.com/" title="鹏华转运" style="background: url(yi_haitao_files/images_v2/zyhzhb/ipehua.png) no-repeat scroll top center transparent;" class="img" ref="nofollow" target="_blank"></a>
+                                        </div>
+                                        
+                                        
+                                        <div class="item">
+                                            <a href="http://www.zdj-ts.com/" title="宅到家" style="background: url(yi_haitao_files/images_v2/zyhzhb/zdj.png) no-repeat scroll top center transparent;" class="img" ref="nofollow" target="_blank"></a>
+                                        </div>
+
+
+                                    </li>
+                                    <!--
+                                    <li>
+
+                                        <div class="item">
+                                            <a title="sample" style="background: url(yi_haitao_files/images_v2/zyhzhb/cooperate_sample.png) no-repeat scroll top center transparent;" class="img"></a>
+                                        </div>
+
+                                    </li>-->
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="clr"></div>
+                    </div>
+                </div>
+                <div class="right">
+                    <div class="item_c">
+                        <div class="module-mylinks">
+                            <h3>／产品相关</h3>
+                            <ul class="bottomnav">
+                                <li>
+                                    <a href="#"><span>申请合作</span></a>
+                                    <span class="divider">|</span> 
+                                </li>
+                                <li>
+                                    <a href="#"><span>联系我们</span></a>
+                                    <span class="divider">|</span> 
+                                </li>
+                                <li>
+                                    <a href="index.php?app=function_intro&menu_index=1"><span>使用指南</span></a>
+                                    <span class="divider">|</span> 
+                                </li>
+                                <li>
+                                    <a href="index.php?app=install_question&menu_index=1&lmenu_index=1"><span>安装疑难</span></a>
+                                    <span class="divider">|</span> 
+                                </li>
+                                <li>
+                                    <a href="#"><span>其他问题</span></a>
+                                    <span class="divider"></span> 
+                                </li>
+                            </ul>
+                            <div id="microblog">
+                                <a class="tsina" href="http://weibo.com/haitao100" target="_blank" title="海淘100新浪微博" rel="nofollow"></a>
+                                <a class="tqq" href="#" target="_blank" onclick="return false;" title="海淘100腾讯微博" rel="nofollow"></a>
+                            </div>
+                        </div>
+                        <div class="module-weblinks">
+                            <h3>／友情链接</h3>
+
+                            <ul class="weblinks">                           	  
+                                <li>
+
+                                    <a href="http://www.deyunhao.com/" title="DY德运" target="_blank" ref="nofollow">DY德运</a>
+
+                                    <span class="divider">|</span>
+                                </li>
+                                <li>
+
+                                    <a href="http://www.jiuhe3000.com/" title="久禾快运" target="_blank" ref="nofollow">久禾快运</a>
+
+                                    <span class="divider">|</span>
+                                </li>
+                                <li>
+
+                                    <a href="http://www.qq-ex.com/" title="QQ-EX" target="_blank" ref="nofollow">QQ-EX</a>
+
+                                    <span class="divider">|</span>
+                                </li>
+                                <li>
+
+                                    <a href="http://www.buytong.cn/" title="百通物流" target="_blank" ref="nofollow">百通物流</a>
+
+                                    <span class="divider">|</span>
+                                </li>
+                                <li>
+
+                                    <a href="http://www.love-eu.com/" title="爱欧洲" target="_blank" ref="nofollow">爱欧洲</a>
+
+                                    <span class="divider">|</span>
+                                </li>
+                                <li>
+
+                                    <a href="http://www.8europe.com/" title="败欧洲" target="_blank" ref="nofollow">败欧洲</a>
+
+                                    <span class="divider">|</span>
+                                </li>
+                                <li>
+
+                                    <a href="http://www.eur-go.com/" title="欧洲GO" target="_blank" ref="nofollow">欧洲GO</a>
+
+                                    <span class="divider">|</span>
+                                </li>
+                                <li>
+
+                                    <a href="http://www.xianfengex.com/" title="先锋快递" target="_blank" ref="nofollow">先锋快递</a>
+
+                                    <span class="divider">|</span>
+                                </li>
+                                <li>
+
+                                    <a href="http://www.uszcn.com/" title="转运中国" target="_blank" ref="nofollow">转运中国</a>
+
+                                    <span class="divider">|</span>
+                                </li>
+                                <li>
+
+                                    <a href="http://www.tmpyh.com/" title="淘美便宜货" target="_blank" ref="nofollow">淘美便宜货</a>
+
+                                    <span class="divider">|</span>
+                                </li>
+                                <li>
+
+                                    <a href="http://www.ryexpress.com/" title="睿鹰速递" target="_blank" ref="nofollow">睿鹰速递</a>
+
+                                    <span class="divider">|</span>
+                                </li>
+                                <li>
+
+                                    <a href="http://www.8dexpress.com/" title="八达转运" target="_blank" ref="nofollow">八达转运</a>
+
+                                    <span class="divider">|</span>
+                                </li>
+                                <li>
+
+                                    <a href="http://www.ipehua.com/" title="鹏华转运" target="_blank" ref="nofollow">鹏华转运</a>
+
+                                    <span class="divider">|</span>
+                                </li>
+                                <li>
+
+                                    <a href="http://www.haidaibao.com/" title="海带宝" target="_blank" ref="nofollow">海带宝</a>
+
+                                    <span class="divider">|</span>
+                                </li>
+                                <li>
+
+                                    <a href="http://europapa.com/" title="欧罗巴巴" target="_blank" ref="nofollow">欧罗巴巴</a>
+
+                                    <span class="divider">|</span>
+                                </li>
+                                <li>
+
+                                    <a href="http://www.jpdeliver.com/" title="JPDeliver" target="_blank" ref="nofollow">JPDeliver</a>
+
+                                    <span class="divider">|</span>
+                                </li>
+                                <li>
+
+                                    <a href="http://www.transrush.com/" title="4px" target="_blank" ref="nofollow">转运四方</a>
+
+                                    <span class="divider">|</span>
+                                </li>
+                                <li>
+
+                                    <a href="http://www.haitaozu.org/" title="海淘族" target="_blank">海淘族</a>
+
+                                    <span class="divider">|</span>
+                                </li>
+                                <li>
+
+                                    <a href="http://www.6pmcn.com/" title="6pm折扣快报" target="_blank" ref="nofollow">6pm折扣快报</a>
+
+                                    <span class="divider">|</span>
+                                </li>
+                                <li>
+
+                                    <a href="http://www.maishoudang.com/" title="买手党" target="_blank" ref="nofollow">买手党</a>
+
+                                    <span class="divider">|</span>
+                                </li>
+                                <li>
+
+                                    <a href="http://www.npp.cc/" title="皮皮海淘" target="_blank" ref="nofollow">皮皮海淘</a>
+
+                                    <span class="divider">|</span>
+                                </li>
+                                <li>
+
+                                    <a href="http://www.99mst.com/" title="美速通" target="_blank" ref="nofollow">美速通</a>
+
+                                    <span class="divider">|</span>
+                                </li>
+                                <li>
+
+                                    <a href="http://www.xingchenex.com" title="星辰快递" target="_blank" ref="nofollow">星辰快递</a>
+
+                                    <span class="divider">|</span>
+                                </li>
+                                 <li>
+
+                                    <a href="http://www.liveinjp.cn/" title="LiveInJp" target="_blank" ref="nofollow">LiveInJp</a>
+
+                                    <span class="divider">|</span>
+                                </li>
+                                <li>
+
+                                    <a href="http://www.123haitao.com/" title="极客海淘" target="_blank">极客海淘</a>
+
+                                    <span class="divider">|</span>
+                                </li>
+                                <!--
+                                <li>
+                                    <a href="http://www.ehtao.net/faq/team/link.html" title="申请友链" target="_blank">友链申请</a>
+                                </li>
+								-->
+                            </ul>
+                        </div>
+
+                        <div class="clr"></div>
+                    </div>
+                </div>
+
+                <div class="module-allrights">
+                    <p>©2011-2014 版权所有 上海酷丹网络有限公司 <a href="http://www.miibeian.gov.cn" target="_blank">沪ICP备14027789号-2</a></p>
+                </div>
+
+                <div class="clr"></div>
+            </div>
+
+        </div>
+    </div>
+    <div id="warning" style="display:none;">
+        <div id="wtitle">
+            <span style="padding-left: 10px;">温馨提示</span>
+            <img id="wclose" src="./yi_haitao_files/close.png">
+        </div>
+        <div id="wtext">如果您点击下载后，长时间没有响应，有可能这个链接地址暂时无法正常访问。</div>
+        <a id="wbutton" href="http://www.ehtao.net/faq/install/chrome.html">查看解决方法</a>
+    </div>
+    <script type="text/javascript">
+        // 产品菜单
+        $('.item60').prepend('<span class="divider">|</span>').hover(
+            function() {
+                $(this).children('ul').show();
+            },
+            function() {
+                $(this).children('ul').hide();
+            }
+        );
+
+        $(function() {
+            // 去除链接虚线
+            $('a,input[type="button"],input[type="submit"]').bind('focus', function() {
+                if (this.blur) {
+                    this.blur();
+                }
+            });
+
+            // 滚动菜单悬浮
+            var isScroll = false;
+            $(window).scroll(function() {
+
+                if ($(this).scrollTop() > $('#header').height()) {
+                    if (!isScroll) {
+                        $('#header').css({
+                            position: 'fixed',
+                            top: '0px',
+                            zIndex: '99',
+                            opacity: '0.9'
+                        });
+                        isScroll = true;
+                    }
+                } else {
+                    $('#header').css({
+                        position: '',
+                        top: '',
+                        zIndex: '',
+                        opacity: '1'
+                    });
+                    isScroll = false;
+                }
+            });
+            // 底部合作伙伴和转运公司
+            $('#partners-slider, #firms-slider').flexslider({
+                //slideshow: false
+            });
+
+            $('#footer .slides .img').hover(
+                function() {
+                    $(this).css({
+                        backgroundPosition: 'bottom center'
+                    });
+                },
+                function() {
+                    $(this).css({
+                        backgroundPosition: 'top center'
+                    });
+                }
+            );
+        });
+    </script>
+</body>
+</html>

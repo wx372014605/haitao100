@@ -1,0 +1,19 @@
+<?php
+//获取订单id
+$order_id = get_string('order_id');
+if($order_id==''){
+	admin_tip(0, '获取订单id失败！');
+}
+
+//获取入库时间
+$storage_time = get_current_time();
+
+//订单入库
+$order_sql = "update transport_order set status_id=2,storage_time='$storage_time' where order_id in ($order_id)";
+$result = $mysql_handle->query($order_sql);
+if($result){
+	admin_tip(1, '订单入库成功！');
+}else{
+	admin_tip(0, '订单入库失败！');
+}
+?>

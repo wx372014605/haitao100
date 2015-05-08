@@ -1,0 +1,73 @@
+<?php 
+//引入配置文件和相关函数
+require_once ('../includes.php');
+
+//判断管理员是否已经登录
+if(!admin_login()){
+	go_url('admin_login.php');
+}
+?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title><?php echo WEB_TITLE;?></title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="keywords" content="<?php echo WEB_KEYWORDS;?>" />
+<meta name="description" content="<?php echo WEB_KEYWORDS;?>" />
+<link rel="stylesheet" type="text/css" href="css/common.css" />
+<link rel="stylesheet" type="text/css" href="css/menu.css" />
+<style>
+	html{background:url('./images/left_menu_back.png') right top no-repeat #D8EFA3;}
+</style>
+<script type="text/javascript" src="../js/jquery.js"></script>
+<script type="text/javascript">
+	if (window.top == window) {
+		window.top.location.href = 'index.php';
+	}
+	$(function(){
+		$(".parent_menu").click(function(){
+			$(this).parent(".menu_list").toggleClass("pack_up");
+		});
+
+		$(".sub_menu li").click(function(){
+			$(".sub_menu li").removeClass("selected_li");
+			$(this).addClass("selected_li");
+		});
+	});
+</script>
+</head>
+<body>
+<div class="left_main">
+	<div class="menu_list">
+		<div class="parent_menu disable_select">交易管理</div>
+		<ul class="sub_menu disable_select">
+			<li><a href="modules.php?menu_tag=transport_order" target="main_content">订单管理</a></li>
+			<li><a href="modules.php?menu_tag=site_list" target="main_content">网站管理</a></li>
+			<li><a href="modules.php?menu_tag=site_count" target="main_content">网站统计</a></li>
+		</ul>
+	</div>
+	<div class="menu_list">
+		<div class="parent_menu disable_select">消息管理</div>
+		<ul class="sub_menu disable_select">
+			<li><a href="modules.php?menu_tag=talk_message" target="main_content">客服消息</a></li>
+		</ul>
+	</div>
+	<div class="menu_list">
+		<div class="parent_menu disable_select">公司管理</div>
+		<ul class="sub_menu disable_select">
+			<li><a href="modules.php?menu_tag=recruitment_list" target="main_content">招聘管理</a></li>
+		</ul>
+	</div>
+	<div class="menu_list">
+		<div class="parent_menu disable_select">系统设置</div>
+		<ul class="sub_menu disable_select">
+			<?php if(is_super()){?>
+			<li><a href="modules.php?menu_tag=admin_list" target="main_content">管理员管理</a></li>
+			<?php }?>
+			<li><a href="modules.php?menu_tag=password_modify" target="main_content">修改密码</a></li>
+			<li><a href="login_out.php" target="_top">注销登录</a></li>
+		</ul>
+	</div>
+</div>
+</body>
+</html>

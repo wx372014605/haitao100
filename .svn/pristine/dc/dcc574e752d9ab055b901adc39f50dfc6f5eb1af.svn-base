@@ -1,0 +1,117 @@
+<?php
+/**
+ * 每天定时获取海淘商品列表
+ * @author zjq
+ * @from 找丢网
+ * v1.0
+ */
+set_time_limit(0);//取消超时
+ignore_user_abort(true);//用户关闭浏览器,PHP脚本也可以继续执行
+
+//linux用命令行执行php文件需要用全路径
+$webRoot = str_replace("\\","/",dirname(dirname(__FILE__)))."/";
+//引入配置文件和相关函数
+require_once ($webRoot.'includes.php');
+//引入phpQuery
+require_once ($webRoot.'class/phpQuery.php');
+
+//获取美元汇率
+$exchange_rate = get_exchange_rate('USD', 'CNY');
+if(!$exchange_rate){
+	return;
+}
+
+$class_map = array(
+	'1'	=> array(
+				'http://cn.dealam.com/category/electronics.html'
+			),
+	'2'	=> array(
+				'http://cn.dealam.com/category/clothing-shoes-accessories.html'
+			),
+	'3'	=> array(
+				'http://cn.dealam.com/category/beauty-fragrance.html'
+			),
+	'4'	=> array(
+				'http://cn.dealam.com/category/baby-kids.html'
+			),
+	'5'	=> array(
+				'http://cn.dealam.com/category/health-personal-care.html'
+			),
+	'6'	=> array(
+				'http://cn.dealam.com/category/restaurants.html'
+			),
+	'7'	=> array(
+				'http://cn.dealam.com/category/books-movies-music.html'
+			),
+	'8'	=> array(
+				'http://cn.dealam.com/category/office.html'
+			),
+	'9'	=> array(
+				'http://cn.dealam.com/category/home-garden-kitchen.html'
+			),
+	'10'=> array(
+				'http://cn.dealam.com/category/sports-outdoors.html'
+			),
+	'11'=> array(
+				'http://cn.dealam.com/category/tools-automotive.html'
+			),
+	'12'=> array(
+				'http://cn.dealam.com/category/watches-jewelry.html'
+			),
+	'13'=> array(
+				'http://cn.dealam.com/category/department-store.html'
+			)
+);
+$site_tag = 'dealam';
+$site_domain = 'http://cn.dealam.com';
+foreach ($class_map as $class_id=>$url_arr){
+	$goods_arr = Array();
+	foreach ($url_arr as $site_url){
+		$list_result = curl_get_contents($site_url,60);
+		$list_doc = phpQuery::newDocument($list_result);
+		foreach($list_doc['.category_deallist .dealitem1'] as $goods_list){
+			$price_html = pq($goods_list)->find('.redb:first')->html();
+			if(preg_match('/\$(\d+(:?\.\d+)?)/', $price_html, $price_arr)){
+				$goods_price = floatval(sprintf("%.2f", $exchange_rate*$price_arr[1]));
+			}else{
+				continue;
+			}
+			$goods_url = pq($goods_list)->find('.content_buy_link')->attr('href');
+			$goods_url = get_true_url($goods_url);
+			$goods_img = pq($goods_list)->find('.img_bdr img')->attr('data-original');
+			if(!$goods_img){
+				$goods_img = pq($goods_list)->find('.img_bdr img')->attr('src');
+			}
+			$goods_name = pq($goods_list)->find('.deal-list-title a')->html();
+			$goods_name = trim(preg_replace('/<[^>]+>[^<]+<\/[^>]+>/', '', $goods_name));
+			$site_name = pq($goods_list)->find('.floatl a')->text();
+			$goods_count = count($goods_arr);
+			$goods_arr[] = array(
+				'goods_name'=>$goods_name,
+				'goods_url'=>$goods_url,
+				'goods_price'=>$goods_price,
+				'goods_img'=>$goods_img,
+				'site_name'=>$site_name,
+				'favorite_count'=>0,
+				'eval_count'=>0,
+				'site_tag'=>$site_tag,
+				'goods_index'=>$goods_count
+			);
+			if($goods_count>=12){
+				break;
+			}
+		}
+	}
+	$class_goods_arr[$class_id] = $goods_arr;
+}
+
+//缓存优惠商品列表
+$haitao_goods = get_cache('haitao_goods');
+$haitao_goods[$site_tag] = $class_goods_arr;
+set_cache('haitao_goods', $haitao_goods, 3600*24);
+
+//获取商品真实地址
+function get_true_url($goods_url){
+	return $goods_url;
+}
+?>

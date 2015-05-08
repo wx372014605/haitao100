@@ -1,0 +1,10 @@
+<?php
+//获取转运地址列表
+$address_sql = "select address_id,address_name from transport_address where is_available=1";
+$address_arr = $mysql_handle->getRs($address_sql);
+if($address_arr){
+	ajax_return(1, '获取转运地址成功！', $address_arr);
+}else{
+	ajax_return(0, '获取转运地址失败');
+}
+?>

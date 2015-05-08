@@ -1,0 +1,98 @@
+<?php
+/**
+ * 新浪微博通用类
+ * @author zjq
+ * @version 1.0
+ */
+
+class SinaWeibo{
+	//类实例的静态成员变量
+	private static $_instance;
+	//微博接口相关配置
+	private static $app_key = '3087371879';
+	private static $app_secret = '1571d2669ddc9951bc2d53a00bc4af44';
+	private static $redirect_uri = 'http://www.haitao100.cn/sina_redirect.php';
+	private static $expires_time = 604800;//授权有效期：测试1天，普通7天，高级15天
+	
+	//单例模式禁止用new初始化
+	private function __construct(){
+		
+	}
+	
+	//单例模式禁止克隆
+	private function __clone(){
+		
+	}
+	
+	//用于实例化该类的静态方法
+	static function getInstance(){
+		if(!(self::$_instance instanceof self)){
+			self::$_instance = new self;
+		}
+		return self::$_instance;
+	}
+	
+	//微博登录授权
+	function oauth(){
+		$oauth_url = 'https://api.weibo.com/oauth2/authorize?client_id='.self::$app_key.'&redirect_uri='.self::$redirect_uri.'&response_type=code';
+		go_url($oauth_url);
+	}
+	
+	//保存access_token
+	function set_access_token($access_token){
+		global $memcache_handle;
+		if(!$access_token)return;
+		if($memcache_handle){
+			$memcache_handle->set('weibo_access_token',$access_token,0,self::$expires_time);
+		}else{
+			write_cache($access_token,'sina_weibo.tmp');
+		}
+	}
+	
+	//获取access_token
+	function get_access_token(){
+		global $memcache_handle;
+		if($memcache_handle){
+			$access_token = $memcache_handle->get('weibo_access_token');
+			return $access_token;
+		}else{
+			$cache_info = get_cache_info('sina_weibo.tmp');
+			if($cache_info){
+				$mtime = $cache_info['mtime'];//获取文件修改时间
+				$now_time = time();
+				if($now_time<$mtime+self::$expires_time){
+					$access_token = read_cache('sina_weibo.tmp');
+					return $access_token;
+				}else{
+					return false;
+				}
+			}else{
+				return false;
+			}
+		}
+	}
+	
+	//发布一条微博信息(仅文本)
+	function upload_text($content){
+		$access_token = $this->get_access_token();
+		if($access_token){
+			$upload_url = "https://api.weibo.com/2/statuses/update.json";
+			$upload_data = array(
+				'access_token'=>$access_token,
+				'status'=>urlencode($content)
+			);
+			$result = curl_post_contents($upload_url, $upload_data);
+			return $result;
+		}else{
+			return false;
+		}
+	}
+	
+	//上传图片并发布一条微博(图文)
+	function upload_news(){
+		
+	}
+}
+
+//实例化微博类
+$sina_weibo = SinaWeibo::getInstance();

@@ -1,0 +1,14 @@
+﻿var NotImplementedException=require("kango/utils").NotImplementedException;function LangBase(){}LangBase.prototype={evalInSandbox:function(e,a){throw new NotImplementedException;},evalScriptsInSandbox:function(e,a){for(var b="",c=0;c<a.length;c++){for(var d=0;d<a[c].requires.length;d++)b+=a[c].requires[d].text+"\n\n";b+=a[c].text+"\n\n"}return this.evalInSandbox(e,b)}};
+
+
+
+
+
+
+
+
+var extensionInfo=require("kango/extension_info"),utils=require("kango/utils"),object=utils.object,array=utils.array,browser=require("kango/browser"),chromeWindows=require("kango/chrome_windows"),io=require("kango/io"),console=require("kango/console");function HTMLSandbox(){this._browserId="kango-background-script-host_"+utils.utils.getDomainFromId(extensionInfo.id);this._frameEventListener=null}
+HTMLSandbox.prototype={create:function(a,c,b){var d=chromeWindows.getHiddenWindow(),e=d.document.createElementNS("http://www.w3.org/1999/xhtml","iframe");e.setAttribute("type","chrome");e.setAttribute("id",this._browserId);this._frameEventListener=function(a){var e=a.target.defaultView.wrappedJSObject;e.onunload=function(){b(e)};c(e)};e.addEventListener("DOMContentLoaded",this._frameEventListener,!1);e.setAttribute("src",io.getExtensionFileUrl(a));d.document.documentElement.appendChild(e)},dispose:function(){var a=
+chromeWindows.getHiddenWindow().document.getElementById(this._browserId);a.removeEventListener("DOMContentLoaded",this._frameEventListener,!1);a.parentNode.removeChild(a)}};function Lang(){}
+Lang.prototype=object.extend(LangBase,{_executeScript:function(a,c){try{null!=a.path?Services.scriptloader.loadSubScript(a.path,c,"UTF-8"):Cu.evalInSandbox(a.text,c,"default",a.path,1)}catch(b){console.reportError(b,a.path)}},exposeObject:function(a,c){c=c||"r";a.__exposedProps__=a.__exposedProps__||{};for(var b in a)"__exposedProps__"!=b&&a.hasOwnProperty(b)&&(a.__exposedProps__[b]=c,a[b]&&object.isObject(a[b])&&this.exposeObject(a[b],c));return a},createHTMLSandbox:function(a,c,b){var d=new HTMLSandbox;
+d.create(a,c,b);return d},evalScriptsInSandbox:function(a,c){var b={kango:browser.getApiProxyForWindow(a)},d=new Cu.Sandbox(a,{sandboxPrototype:a,wantXrays:!0});object.forEach(b,function(a,b){d[b]=a});array.forEach(c,function(a){array.forEach(a.requires,function(a){this._executeScript(a,d)},this);this._executeScript(a,d)},this)}});module.exports=new Lang;

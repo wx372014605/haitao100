@@ -1,0 +1,312 @@
+<?php 
+//获取当前时间
+function get_current_time($time_str=''){
+	if($time_str){
+		return date("Y-m-d H:i:s",strtotime($time_str));
+	}else{
+		return date("Y-m-d H:i:s");
+	}
+}
+
+//获取当前日期
+function get_current_date($time_str=''){
+	if($time_str){
+		return date("Y-m-d",strtotime($time_str));
+	}else{
+		return date("Y-m-d");
+	}
+}
+
+//获取当前日期前的日期列表
+function get_date_range($days){
+	$date_range = array();
+	$start_stamp = strtotime("-".$days." day");//开始的时间戳
+	$now_stamp = time();//当前时间戳
+	while($start_stamp<$now_stamp){
+		$date_range[] = date("Y-m-d",$start_stamp);
+		$start_stamp += 86400;
+	}
+	return $date_range;
+}
+
+//获取时间字符串中的日期
+function get_date($time_str){
+	$time_arr = explode(" ", $time_str);
+	return $time_arr[0];
+}
+
+//获取时间字符串中的日期，并格式化输出
+function get_date_format($time_str){
+	$date_str = preg_replace("/\s.*$/", '', $time_str);
+	$date_arr = explode("-", $date_str);
+	return $date_arr[0].'年'.$date_arr[1].'月'.$date_arr[2].'日';
+}
+
+//将秒数转换成时间
+function second_to_time($second){
+	$time_str = '';
+	$hour = floor($second/3600);
+	if($hour>0){
+		$time_str .= $hour."时";
+	}
+	$minute = floor($second%3600/60);
+	if($minute>0){
+		$time_str .= $minute."分";
+	}
+	$second = floor($second%60);
+	if($second>0){
+		$time_str .= $second."秒";
+	}
+	return $time_str;
+}
+
+//获取客户端真实ip地址
+function get_ip(){
+	if(getenv("HTTP_CLIENT_IP") && strcasecmp(getenv("HTTP_CLIENT_IP"), "unknow")){
+		$ip = getenv("HTTP_CLIENT_IP");
+	}else if(getenv("HTTP_X_FORWARDED_FOR") && strcasecmp(getenv("HTTP_X_FORWARDED_FOR"), "unknow")){
+		$ip = getenv("HTTP_X_FORWARDED_FOR");
+	}else if(getenv("REMOTE_ADDR") && strcasecmp(getenv("REMOTE_ADDR"), "unknow")){
+		$ip = getenv("REMOTE_ADDR");
+	}else if(isset($_SERVER["REMOTE_ADDR"]) && $_SERVER["REMOTE_ADDR"] && strcasecmp($_SERVER["REMOTE_ADDR"],"unknow")){
+		$ip = $_SERVER["REMOTE_ADDR"];
+	}else{
+		$ip = "unknow";
+	}
+	return $ip;
+}
+
+//获取上一个页面的地址
+function get_pre_url(){
+	if(isset($_SERVER['HTTP_REFERER'])){
+		return $_SERVER['HTTP_REFERER'];
+	}else{
+		return '';
+	}
+}
+
+//获取当前页面的地址
+function get_current_url(){
+	return 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+	#return 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'];
+}
+
+//设置session
+function set_session($session_key,$session_value){
+	$_SESSION[SESSION_PREFIX.$session_key] = $session_value;
+}
+
+//获取session
+function get_session($session_key){
+	if(isset($_SESSION[SESSION_PREFIX.$session_key])){
+		return $_SESSION[SESSION_PREFIX.$session_key];
+	}else{
+		return false;
+	}
+}
+
+//删除session
+function delete_session($session_key){
+	unset($_SESSION[SESSION_PREFIX.$session_key]);
+}
+
+//处理post提交的字符串类型的参数
+function post_string($parm_key,$tag=1){
+	if(isset($_POST[$parm_key])){
+		if($tag){
+			return replace_special_chars($_POST[$parm_key]);
+		}else{
+			return add_slashes($_POST[$parm_key]);
+		}
+	}else{
+		return "";
+	}
+}
+
+//处理post提交的数字类型的参数
+function post_number($parm_key){
+	if(isset($_POST[$parm_key])){
+		return intval($_POST[$parm_key]);
+	}else{
+		return 0;
+	}
+}
+
+//处理get提交的字符串类型的参数
+function get_string($parm_key,$tag=1){
+	if(isset($_GET[$parm_key])){
+		if($tag){
+			return replace_special_chars($_GET[$parm_key]);
+		}else{
+			return add_slashes($_GET[$parm_key]);
+		}
+	}else{
+		return "";
+	}
+}
+
+//处理get提交的数字类型的参数
+function get_number($parm_key){
+	if(isset($_GET[$parm_key])){
+		return intval($_GET[$parm_key]);
+	}else{
+		return 0;
+	}
+}
+
+//传入错误代码和错误提示内容，转化为json格式输出
+function ajax_return($error_code,$message,$attach_info=array()){
+	$result_arr = array(
+		"status" =>	$error_code,
+		"message" => $message,
+		"attach" => $attach_info
+	);
+	echo json_encode($result_arr);
+	exit();
+}
+
+//创建目录
+function create_dir($dir_name){
+	if(is_dir(WEB_ROOT.$dir_name)){
+		return true;
+	}else{
+		return @mkdir(WEB_ROOT.$dir_name, 0777, true);
+	}
+}
+
+//读取文件
+function read_file($file_name){
+	if(file_exists(WEB_ROOT.$file_name)){
+		return @file_get_contents(WEB_ROOT.$file_name);
+	}else{
+		return false;	
+	}
+}
+
+//写入文件
+function write_file($file_name,$contents){
+	$file = @fopen(WEB_ROOT.$file_name, "w");
+	if($file){
+		$result = @fwrite($file, $contents);
+		fclose($file);
+		return $result;
+	}else{
+		return false;
+	}
+}
+
+//删除文件
+function delete_file($file_name){
+	if(file_exists(WEB_ROOT.$file_name)){
+		return @unlink(WEB_ROOT.$file_name);
+	}else{
+		return true;
+	}
+}
+
+//获取文件扩展名
+function get_extend_name($file_name){
+	$file_name = preg_replace("/\?.*$/", "", $file_name);
+	$path_arr = explode(".", $file_name);
+	return end($path_arr);
+}
+
+//写日志
+function write_log($content,$log_file='system.log'){
+	$log_dir = WEB_ROOT.'log/';
+	if(!is_dir($log_dir)){
+		mkdir($log_dir, 0777, true);
+	}
+	$log_file = $log_dir.$log_file;
+	$log_handle = fopen($log_file, "a");
+	if($log_handle){
+		$result = fwrite($log_handle, '【'.get_current_time().'】'.$content."\r\n");
+		fclose($log_handle);
+		if($result){
+			return true;
+		}else{
+			return false;
+		}
+	}else{
+		return false;
+	}
+}
+
+//获取内容摘要(去除html标签)
+function get_abstract($content,$words_num=180){
+	$content = preg_replace("/<[^>]*?[\/]?\s*>/", '', $content);
+	return sub_str($content, $words_num);
+}
+
+//获取url参数
+function get_url_query($except_key=''){
+	$url_query = isset($_SERVER['QUERY_STRING'])?$_SERVER['QUERY_STRING']:'';
+	if($url_query){
+		if($except_key){
+			$result_arr = array();
+			$query_arr = explode("&", $url_query);
+			foreach ($query_arr as $val){
+				$tmp_arr = explode("=", $val);
+				$query_key = $tmp_arr[0];
+				$query_value = isset($tmp_arr[1])?$tmp_arr[1]:'';
+				$result_arr[$query_key] = $query_value;
+			}
+			if(isset($result_arr[$except_key])){
+				unset($result_arr[$except_key]);
+			}
+			$result_query = '';
+			foreach ($result_arr as $key=>$val){
+				$result_query .= $key.'='.$val.'&';
+			}
+			$result_query = preg_replace('/&$/', '', $result_query);
+			return $result_query;
+		}else{
+			return $url_query;
+		}
+	}else{
+		return '';
+	}
+}
+
+//写入缓存文件
+function write_cache($content,$cache_file){
+	$cache_dir = WEB_ROOT.'cache/';
+	create_dir($cache_dir);
+	$cache_file = $cache_dir.$cache_file;
+	return write_file($cache_file,$content);
+}
+//读取缓存文件
+function read_cache($cache_file){
+	$cache_dir = WEB_ROOT.'cache/';
+	$cache_file = $cache_dir.$cache_file;
+	return read_file($cache_file);
+}
+
+//获取缓存文件详细信息
+function get_cache_info($cache_file){
+	$cache_dir = WEB_ROOT.'cache/';
+	$cache_file = $cache_dir.$cache_file;
+	if(file_exists($cache_file)){
+		$file = @fopen($cache_file, "r");
+		if($file){
+			$cache_info = fstat($file);
+			fclose($file);
+			return $cache_info;
+		}else{
+			return array();
+		}
+	}else{
+		return array();
+	}
+}
+
+//给用户发送消息
+function send_system_message($user_id,$msg_title,$msg_content,$msg_link='',$msg_type=0){
+	global $mysql_handle;
+	$send_time = get_current_time();
+	$message_sql = "insert into system_message (msg_type,user_id,msg_title,msg_content,msg_link,send_time) 
+	values ($msg_type,$user_id,'$msg_title','$msg_content','$msg_link','$send_time')";
+	$result = $mysql_handle->query($message_sql);
+	return $result;
+}
+?>

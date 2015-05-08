@@ -1,0 +1,141 @@
+<?php
+//引入配置文件和相关函数
+require_once ('includes.php');
+
+//define your token
+define("TOKEN", "HF_haitao100");
+$wechatObj = new wechatCallbackapiTest();
+//auto change
+$postStr = isset($GLOBALS["HTTP_RAW_POST_DATA"])?$GLOBALS["HTTP_RAW_POST_DATA"]:'';
+if($postStr){
+	$wechatObj->responseMsg();
+}else{
+	$wechatObj->valid();
+}
+
+class wechatCallbackapiTest
+{
+	public function valid()
+    {
+        $echoStr = isset($_GET["echostr"])?$_GET["echostr"]:'';
+
+        //valid signature , option
+        if($this->checkSignature()){
+        	echo $echoStr;
+        	exit;
+        }
+    }
+
+    public function responseMsg()
+    {
+		//get post data, May be due to the different environments
+		//$postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
+		global $postStr,$weixin_handle;
+		
+		/****记录日志，用于调试程序****/
+		//write_log(serialize($postStr),'weixin.log');
+		//write_log(serialize($_GET),'weixin.log');
+		/****记录日志，用于调试程序****/
+		
+      	//extract post data
+		if (!empty($postStr)){
+			$postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
+			$toUsername = $postObj->ToUserName;//公众帐号flatform_id
+			$encrypt_msg = isset($postObj->Encrypt)?$postObj->Encrypt:'';//消息密文
+			
+			/*
+			 * 解密微信消息
+			 */
+			$timestamp = get_string('timestamp');
+			$nonce = get_string('nonce');
+			$encrypt_type = strtolower(get_string('encrypt_type'));
+			$msg_signature = get_string('msg_signature');
+			if($encrypt_msg and $encrypt_type=='aes' and $msg_signature){
+				$account_info = $weixin_handle->get_account_info($toUsername);
+				if($account_info){
+					$app_id = $account_info['app_id'];
+					$app_secret = $account_info['app_secret'];
+					$encoding_aes_key = $account_info['encoding_aes_key'];
+					if($encoding_aes_key){
+						//引入微信加密解密类
+						require_once (WEB_ROOT.'class/weixin_crypt.php');
+						$weixin_crypt = new WeixinCrypt($app_id,$encoding_aes_key,TOKEN);
+						$postStr = $weixin_crypt->decrypt($encrypt_msg, $toUsername, $msg_signature, $timestamp, $nonce);
+						$postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
+					}
+				}
+			}
+			
+			$fromUsername = $postObj->FromUserName;//用户open_id
+			$msgtype = $postObj->MsgType;//消息类型
+			
+			/****根据接收的消息类型分别处理****/
+			switch($msgtype){
+				case "voice"://语音消息
+					//获取语音消息信息
+					$recognition = $postObj->Recognition;
+					
+					//当作文本消息来处理哦
+					$postObj->Content = $recognition;
+				case "text"://文本消息
+					$keyword = trim($postObj->Content);//用户发送的消息内容
+					if(!empty($keyword))
+					{
+						//回复文本消息
+						$contentStr = $weixin_handle->simsimHttp($keyword);
+						$weixin_handle->replyText($toUsername,$fromUsername,$keyword);
+					}else{
+						echo "Input something...";
+					}
+					break;
+				case "image"://图片消息
+					break;
+				case "location"://地理位置消息
+					break;
+				case "link "://链接消息
+					break;
+				case "video"://视频消息
+					break;
+				case "event"://事件推送消息
+					$event = $postObj->Event;
+					switch ($event){
+						case "subscribe"://关注事件
+							//更新用户信息
+							$weixin_handle->update_user_info($fromUsername,array("platform_id"=>$toUsername,"subscribe"=>"1"));
+							//回复文本消息
+							$contentStr = "Welcome to wechat world!";
+							$weixin_handle->replyText($toUsername,$fromUsername,$contentStr);
+							break;
+						case "unsubscribe"://取消关注事件
+							//更新用户信息
+							$weixin_handle->update_user_info($fromUsername,array("subscribe"=>"0"));
+							break;
+					}
+				
+			}
+        }else {
+        	echo "";
+        	exit;
+        }
+    }
+	
+	private function checkSignature()
+	{
+        $signature = get_string('signature');
+        $timestamp = get_string('timestamp');
+        $nonce = get_string('nonce');
+        
+		$token = TOKEN;
+		$tmpArr = array($token, $timestamp, $nonce);
+		sort($tmpArr, SORT_STRING);
+		$tmpStr = implode( $tmpArr );
+		$tmpStr = sha1( $tmpStr );
+		
+		if( $tmpStr == $signature ){
+			return true;
+		}else{
+			return false;
+		}
+	}
+}
+?>

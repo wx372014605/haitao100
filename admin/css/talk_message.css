@@ -1,0 +1,73 @@
+.talk_class_bar{padding:0px 10px;}
+.talk_class_bar #talk_class_ul{overflow:hidden;zoom:1;}
+.talk_class_bar .talk_class_li{float:left;padding:10px 20px;cursor:pointer;}
+.talk_class_bar .talk_class_li:hover{border-bottom:3px solid #A0A3AB;}
+.talk_class_bar .current_li{border-bottom:3px solid #44b549;}
+.talk_class_bar .current_li:hover{border-bottom:3px solid #44b549;}
+.talk_message_container{overflow:hidden;zoom:1;border:1px solid #B7C4C9;}
+.talk_message_left{margin-right:201px;border-right:1px solid #B7C4C9;}
+.talk_message_right{width:200px;float:right;}
+#talk_iframe{width:100%;height:450px;}
+#user_iframe{width:100%;height:450px;}
+#user_class_ul{overflow:hidden;zoom:1;border-bottom:1px solid #B7C4C9;}
+.user_class_li{width:50%;float:left;padding:5px 0;cursor:pointer;}
+.user_class_li:hover{background:#E5E8EA;}
+.user_class_li a{display:block;width:20px;height:20px;background:url('../images/talk_user_ico.png');margin:0 auto;}
+#normal_user a{background-position:-20px 0;}
+#normal_user.current_li a{background-position:0 0;}
+#history_user a{background-position:-20px -20px;}
+#history_user.current_li a{background-position:0 -20px;}
+.talk_user_list{}
+.talk_user_li{padding:5px 10px;cursor:pointer;overflow:hidden;zoom:1;}
+.talk_user_li.current_li{background:#9CA3B6;}
+.talk_user_li.current_li:hover{background:#9CA3B6;}
+.talk_user_li.current_li .user_name{color:#fff;}
+.talk_user_li:hover{background:#E5E8EA;}
+.talk_user_li .user_name{float:left;}
+.talk_user_li .user_time{float:right;color:#000;}
+.talk_user_list{display:none;}
+#haitao_talk_content{background:#BCE0C4;}
+.haitao_talk_message{padding-right:8px;background:#E0D8D8;}
+#haitao_talk_show{padding:8px;height:250px;background-color:#fff;overflow-x:hidden;overflow-y:auto;}
+.talk_record_list{padding:3px;}
+.talk_record_list img{max-width:100%;}
+.talk_record_list .record_error_ico{width:16px;height:16px;float:left;background:url('../images/msg_bg.png')}
+.talk_record_list .record_error_text{margin-left:20px;color:#F24605;}
+.talk_record_list #record_history_tip{height:22px;line-height:22px;background:url('../images/talk_bar_back.png') center center no-repeat;text-align:center;color:#808080;}
+.haitao_talk_bar{height:27px;background:#E0D8D8;padding:0 12px;}
+.talk_ico{float:left;cursor:pointer;margin:0 2px;position:relative;width:27px;height:27px;}
+.talk_ico i{border-radius:4px;border:1px solid #EFEFEF;display:block;width:25px;height:25px;position:absolute;left:0;top:0;z-index:9999;background:url('../images/talk_ico.png');}
+.talk_ico:hover i{border:1px solid #bbb;}
+.talk_ico .talk_ico_active{background-color:#fff;border:1px solid #aaa;border-top:1px solid #fff;height:27px;margin-top:-2px;}
+.talk_ico:hover .talk_ico_active{border-top-left-radius:0;border-top-right-radius:0;border:1px solid #aaa;border-top:1px solid #fff;}
+#talk_exp_main{
+	position:absolute;z-index:99;left:0px;bottom:27px;width:416px;border-radius:4px;border-bottom-left-radius:0;border-bottom-right-radius:0;border:1px solid #aaa;
+	padding:8px;background:#fff;outline:none;display:none;
+}
+#talk_exp_main img{float:left;width:24px;height:24px;border:1px solid #D3E4F0;}
+#add_pic{overflow:hidden;}
+#add_pic i{background-position:0 -25px;}
+#pic_upload{position:absolute;left:-350px;top:0px;z-index:10000;line-height:27px;cursor:pointer;font-size:30px;opacity:0;filter:alpha(opacity=0);}
+#view_talk_history{float:right;color:#3F83B7;margin-top:4px;}
+#haitao_talk_editor{height:110px;padding:3px 8px;color:#44596A;outline:none;background:#fff;overflow-x:hidden;overflow-y:auto;word-break:break-all;word-wrap:break;}
+#haitao_talk_editor img{max-width:100%;}
+.haitao_talk_send{overflow:hidden;zoom:1;padding:10px 0;}
+#haitao_talk_send_button{float:right;width:61px;height:20px;background:url('../images/message_send.png');margin-right:10px;}
+#haitao_talk_send_button:hover{background-position:0 -20px;}
+#talk_history_content{height:418px;overflow-x:hidden;overflow-y:auto;}
+.talk_history_date{color:#4E4E4E;font-weight:bold;font-family:"Microsoft YaHei";}
+#talk_history_page{height:22px;line-height:22px;background:#F1FBD4;border-top:1px solid #D1E8F7;padding:4px 10px;text-align:right;}
+#talk_history_page .page_a{display:inline-block;width:20px;height:20px;background:url('../images/talk_page_ico.png');border:1px solid #F1FBD4;margin:0 2px;vertical-align:middle;}
+#talk_history_page .page_a:hover{border:1px solid #ACC6BE;}
+#talk_history_page #first_page{background-position:0px 0px;}
+#talk_history_page #first_page.disabled_page{background-position:-20px 0px;}
+#talk_history_page #pre_page{background-position:0px -20px;}
+#talk_history_page #pre_page.disabled_page{background-position:-20px -20px;}
+#talk_history_page #next_page{background-position:0px -40px;}
+#talk_history_page #next_page.disabled_page{background-position:-20px -40px;}
+#talk_history_page #last_page{background-position:0px -60px;}
+#talk_history_page #last_page.disabled_page{background-position:-20px -60px;}
+#talk_history_page span{color:#4E4E4E;}
+#talk_history_page #talk_page_input{height:18px;line-height:18px;padding:0 2px;margin:0 4px;border:1px solid #ACC6BE;width:30px;text-align:center;vertical-align:middle;}
+#talk_history_content{padding:0 10px;}
+#talk_history_content img{max-width:100%;}

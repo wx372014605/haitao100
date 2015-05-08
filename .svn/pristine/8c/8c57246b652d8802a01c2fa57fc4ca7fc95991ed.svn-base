@@ -1,0 +1,6 @@
+<?php
+//获取插件支持的网站列表
+$site_sql = "select * from plugin_site where is_available=1";
+$site_arr = $mysql_handle->getRs($site_sql);
+ajax_return(1, '获取插件支持的网站列表成功！', $site_arr);
+?>

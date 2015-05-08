@@ -1,0 +1,53 @@
+<?php
+/**
+ * 微信原生native支付，用户点击支付url，微信服务器请求商户服务器返回package，进入支付阶段
+ * @author zjq
+ * @version 1.0
+ */
+//引入配置文件和相关函数
+require_once ('../includes.php');
+
+$postStr = isset($GLOBALS["HTTP_RAW_POST_DATA"])?$GLOBALS["HTTP_RAW_POST_DATA"]:'';
+write_log($postStr);exit();
+if($postStr){
+	/*
+	 * 解析该笔订单的信息
+	 */
+	$postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
+	$open_id = $postObj->OpenId;
+	$app_id = $postObj->AppId;
+	$is_subscribe = $postObj->IsSubscribe;
+	$product_id = $postObj->ProductId;
+	$time_stamp = $postObj->TimeStamp;
+	$nonce_str = $postObj->NonceStr;
+	$app_signature = $postObj->AppSignature;
+	$sign_method = $postObj->SignMethod;
+	
+	/*
+	 * 根据订单号product_id读取数据库中的信息
+	 */
+	
+	/*
+	 * 返回package信息
+	 */
+	include_once("WxPayHelper.php");
+
+	$commonUtil = new CommonUtil();
+	$wxPayHelper = new WxPayHelper();
+	
+	//验证签名
+	if($wxPayHelper->checkSignature($postObj)){
+		$wxPayHelper->setParameter("bank_type", "WX");
+		$wxPayHelper->setParameter("body", "test");
+		$wxPayHelper->setParameter("partner", PARTNER);
+		$wxPayHelper->setParameter("out_trade_no", $commonUtil->create_noncestr());
+		$wxPayHelper->setParameter("total_fee", "1");
+		$wxPayHelper->setParameter("fee_type", "1");
+		$wxPayHelper->setParameter("notify_url", WEB_URL."wxpay/notify_url.php");
+		$wxPayHelper->setParameter("spbill_create_ip", get_ip());
+		$wxPayHelper->setParameter("input_charset", "GBK");
+		
+		echo $wxPayHelper->create_native_package();
+	}
+}
+?>

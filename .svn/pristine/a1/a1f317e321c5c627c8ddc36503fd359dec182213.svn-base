@@ -1,0 +1,55 @@
+var extension = new PopupExtension();
+var _this = extension.get_this();
+
+//页面初始化
+extension.content_init = function(){
+	_this.get_site_list();
+}
+
+//绑定事件
+extension.bind_event = function(){
+	//新标签页打开海淘网站
+	$("#popup_content_main .haitao_web_a").live('click',function(){
+		var tab_url = $(this).attr('tab_url');
+		if(tab_url){
+			kango.browser.tabs.create({url: tab_url});
+			KangoAPI.closeWindow();
+		}
+		return false;
+	});
+}
+
+//获取插件支持的网站列表
+extension.get_site_list = function(){
+	var details = {
+		url: PluginConf.get_interface_file('get_site_list'),
+		method: 'GET',
+		async: true,
+		contentType: 'json'
+	};
+	kango.xhr.send(details, function(data) {
+		if (data.status == 200 && data.response != null) {
+			var result_obj = data.response;
+			var site_arr = result_obj.attach;
+			var site_length = site_arr.length;
+			var web_list = '<div class="popup_window_tip"><span>暂无支持的网站！</span></div>';
+			for(var i=0;i<site_length;i++){
+				web_list += '<div class="haitao_web_list">'+
+								'<a class="haitao_web_a" tab_url="'+site_arr[i].site_url+'">'+
+									'<img src="'+PluginConf.source_url+site_arr[i].site_logo+'"/>'+
+									'<span>'+site_arr[i].site_name+'</span>'+
+								'</a>'+
+							'</div>';
+			}
+			$('#popup_content_padding').append(web_list);
+			if(site_length==0){
+				$('#popup_content_padding .popup_window_tip').show();
+			}
+		}else { // something went wrong
+			var error_html = '<div class="popup_error_tip"><i></i><span>获取海淘网站列表失败！</span></div>';
+			$('#popup_content_padding').empty().append(message_list);
+		}
+		$('#popup_content_main').removeClass('window_loading');
+	});
+}
+extension.init();

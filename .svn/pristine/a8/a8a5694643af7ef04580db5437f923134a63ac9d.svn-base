@@ -1,0 +1,855 @@
+<?php 
+set_time_limit(0);//取消超时
+ignore_user_abort(true);//用户关闭浏览器,PHP脚本也可以继续执行
+
+//获取最新购买的商品列表
+$order_sql = "select od.goods_url,od.goods_img,od.goods_name,od.goods_price,od.zh_goods_name,site.site_name from 
+transport_order as od join plugin_site as site on od.site_id=site.site_id where od.is_delete=0 order by od.order_id desc limit 15";
+$order_arr = $mysql_handle->getRs($order_sql);
+
+//获取最新浏览的商品列表
+$history_sql = "select gh.*,site.site_name from goods_view_history as gh 
+join plugin_site as site on gh.site_id=site.site_id";
+if($order_arr){
+	$url_list = '';
+	foreach ($order_arr as $val){
+		$url_list .= "'".$val['goods_url']."',";
+	}
+	$url_list = preg_replace('/,$/', '', $url_list);
+	$history_sql .= " where gh.goods_url not in ($url_list)";
+}
+$history_sql .= " order by gh.update_time desc limit 15";
+$history_arr = $mysql_handle->getRs($history_sql);
+
+//获取插件支持的网站列表
+$site_sql = "select site_id,site_name,site_url,site_logo from plugin_site where is_available=1";
+$site_arr = $mysql_handle->getRs($site_sql);
+
+
+//获取海淘商品分类
+$class_sql = "select class_id,class_name from goods_class";
+$class_arr = $mysql_handle->getRs($class_sql);
+$class_name = array();
+foreach ($class_arr as $val){
+	$class_name[$val['class_id']] = $val['class_name'];
+}
+
+//获取海淘商品列表
+if($memcache_handle){
+	$memcache_cache = true;//是否已经缓存的标记
+	$plugin_arr = $memcache_handle->get('plugin');
+	if(!$plugin_arr or !isset($plugin_arr['haitao_goods'])){
+		file_get_contents(WEB_URL.'task/get_haitaobei_goods.php');
+		file_get_contents(WEB_URL.'task/get_smzdm_goods.php');
+		file_get_contents(WEB_URL.'task/get_dealam_goods.php');
+		$memcache_cache = false;
+	}else{
+		$haitao_goods = $plugin_arr['haitao_goods'];
+		if(!$haitao_goods or !isset($haitao_goods['haitaobei'])){
+			file_get_contents(WEB_URL.'task/get_haitaobei_goods.php');
+			$memcache_cache = false;
+		}
+		if(!$haitao_goods or !isset($haitao_goods['smzdm'])){
+			file_get_contents(WEB_URL.'task/get_smzdm_goods.php');
+			$memcache_cache = false;
+		}
+		if(!$haitao_goods or !isset($haitao_goods['dealam'])){
+			file_get_contents(WEB_URL.'task/get_dealam_goods.php');
+			$memcache_cache = false;
+		}
+	}
+	if(!$memcache_cache){
+		$plugin_arr = $memcache_handle->get('plugin');
+		$haitao_goods = $plugin_arr['haitao_goods'];
+	}
+}else{
+	$haitaobei_cache = read_cache('haitaobei_goods.tmp');
+	if(!$haitaobei_cache){
+		file_get_contents(WEB_URL.'task/get_haitaobei_goods.php');
+		$haitaobei_cache = read_cache('haitaobei_goods.tmp');
+	}
+	$haitaobei_goods = unserialize($haitaobei_cache);
+	
+	$smzdm_cache = read_cache('smzdm_goods.tmp');
+	if(!$smzdm_cache){
+		file_get_contents(WEB_URL.'task/get_smzdm_goods.php');
+		$smzdm_cache = read_cache('smzdm_goods.tmp');
+	}
+	$smzdm_goods = unserialize($smzdm_cache);
+	
+	$dealam_cache = read_cache('dealam_goods.tmp');
+	if(!$dealam_cache){
+		file_get_contents(WEB_URL.'task/get_dealam_goods.php');
+		$dealam_cache = read_cache('dealam_goods.tmp');
+	}
+	$dealam_goods = unserialize($dealam_cache);
+	
+	$haitao_goods = array(
+		'haitaobei' => $haitaobei_goods,
+		'smzdm' => $smzdm_goods,
+		'dealam' => $dealam_goods
+	);
+}
+$haitao_result = array();
+foreach ($haitao_goods as $val){
+	foreach ($val as $class_id=>$goods_arr){
+		if(isset($haitao_result[$class_id]) and $haitao_result[$class_id]){
+			$haitao_result[$class_id] = array_merge($haitao_result[$class_id],$goods_arr);
+		}else{
+			$haitao_result[$class_id] = $goods_arr;
+		}
+	}
+}
+
+//格式化输出价格
+function get_format_price($price){
+	$price_arr = explode('.', $price);
+	$price1 = $price_arr[0];
+	$price2 = isset($price_arr[1])?$price_arr[1]:'00';
+	$price_html = '<span>￥<font>'.$price1.'</font>.'.$price2.'</span>';
+	return $price_html;
+}
+
+//获取商品图片url地址(破解图片防盗链)
+function get_goods_img($goods_img){
+	if(preg_match('/^http:\/\/ym?\.zdmimg\.com/',$goods_img)){
+		return WEB_URL.'index.php?app=get_daolian_pic&img_url='.urlencode($goods_img);
+	}else{
+		return $goods_img;
+	}
+}
+?>
+<?php require 'modules/index_header.php';?>
+	<!-- 提交网站 -->
+	<div id="window_back"></div>
+	<div id="site_window_main">
+		<div class="site_window_content">
+			<img id="window_close_img" title="关闭窗口" src="./yi_haitao_files/images_v2/close.png"/>
+			<div class="site_window_list"><span>网站主页：</span><input id="site_domain" name="site_domain"/></div>
+			<div class="site_window_list"><a id="site_button" href="javascript:;">提交网站</a></div>
+		</div>
+	</div>
+	<!-- 提交网站 -->
+	
+	
+	
+	<!--------------------------------修改后的banner--------------------------------------------->
+	
+	
+	
+	
+	
+<div id="bn">
+	<div class="mian"> 
+		<div class="left">
+			<ul>
+				<li><a href="#haitao_goods1">电器数码</a></li>
+				<li><a href="#haitao_goods2">服饰鞋包</a></li>
+				<li><a href="#haitao_goods3">美容化妆</a></li>
+				<li><a href="#haitao_goods4">母婴用品</a></li>
+				<li><a href="#haitao_goods5">日用百货</a></li>
+				<li><a href="#haitao_goods6">食品保健</a></li>
+				<li><a href="#haitao_goods7">图书音像</a></li>
+				<li><a href="#haitao_goods8">办公设备</a></li>
+				<li><a href="#haitao_goods9">家居装饰</a></li>
+				<li><a href="#haitao_goods10">运动户外</a></li>
+				<li><a href="#haitao_goods11">汽车用品</a></li>
+				<li><a href="#haitao_goods12">手表首饰</a></li>
+				<li><a href="#haitao_goods13">其他分类</a></li>
+			</ul>
+		</div>
+		<span class="tu">
+			<a href="#" class="lianjie"><img src="img/01.jpg" height="390" width="600" /></a>
+			<a href="#" class="lianjie" style="display:none"><img src="img/02.jpg" height="390" width="600" /></a>
+			<a href="#" class="lianjie" style="display:none"><img src="img/03.jpg" height="390" width="600" /></a>
+			<a href="#" class="lianjie" style="display:none"><img src="img/04.jpg" height="390" width="600" /></a> 
+			<a href="#" class="lianjie" style="display:none"><img src="img/05.jpg" height="390" width="600" /></a>
+			<a href="#" class="lianjie" style="display:none"><img src="img/06.jpg" height="390" width="600" /></a>		</span>
+		<div class="right">
+			<div class="r_top">
+				<div class="r_left"><p>插件下载</p></div>
+				<div class="r_right"><p>使用指南</p></div>
+			</div>
+			<div class="r_foot1">
+				<div class="hide1">
+					<ul>
+						<li class="logo1" id="logo1">
+							<p><a href="./yi_haitao_files/plugin/haitao_0.9.0.xpi">Firefox插件下载</a></p>
+						</li>
+						<li class="logo1" id="logo2">
+							<p><a href="./yi_haitao_files/plugin/haitao_0.9.0.crx">Chrome插件下载</a></p>
+						</li>
+						<li class="logo1" id="logo3">
+							<p><a href="#">Safari插件下</a></p>
+						</li>
+					</ul>
+				</div>
+				<div class="hide2">
+					<ul>
+						<li id="logo4">
+							<p><a href="./yi_haitao_files/plugin/haitao_0.9.0.crx">遨游</a></p>
+						</li>
+						<li id="logo5">
+							<p><a href="./yi_haitao_files/plugin/haitao_0.9.0.crx">猎豹</a></p>
+						</li>
+						<li id="logo6">
+							<p><a href="./yi_haitao_files/plugin/haitao_0.9.0.crx">淘宝</a></p>
+						</li>
+					</ul>
+					<ul>
+						<li id="logo7">
+							<p><a href="./yi_haitao_files/plugin/haitao_0.9.0.crx">UC</a></p>
+						</li>
+						<li id="logo8">
+							<p><a href="./yi_haitao_files/plugin/haitao_0.9.0.crx">百度</a></p>
+						</li>
+						<li id="logo9">
+							<div id="opera"></div>
+							<p><a href="./yi_haitao_files/plugin/haitao_0.9.0.crx" class="opera">Opera</a></p>
+						</li>
+					</ul>
+					<ul>
+						<li id="logo10">
+							<p><a href="./yi_haitao_files/plugin/haitao_0.9.0.crx">枫树</a></p>
+						</li>
+						<li id="logo11">
+							<p><a href="./yi_haitao_files/plugin/haitao_0.9.0.crx">搜狗</a></p>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<div class="r_foot2" id="r_foot2">
+				<ul>
+					<li><a href="">关于海淘100信用卡提现教程说明</a></li>
+					<li><a href="">闪淘新版20元红包免费领</a></li>
+					<li><a href="">海淘100 10万金币等你来抢</a></li>
+					<li><a href="">海淘1003月2日新春特卖</a></li>
+					<li><a href="">2.14情人节福利约不约</a></li>
+					<li><a href="">关于关闭非好友站短功能</a></li>
+					<li><a href="">2月金币兑换即将开始喽</a></li>
+					<li><a href="">易物会第五季参与送金币</a></li>
+					<li><a href="">晒海淘洗发产品赢洗发好礼</a></li>
+					<li><a href="">多个转运公司公布放假通知</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>	
+	<div class="clr"></div>
+	<div id="hao">
+		<a class="xu">1</a> 
+		<a class="xu">2</a>
+		<a class="xu">3</a> 
+		<a class="xu">4</a> 
+		<a class="xu">5</a>
+		<a class="xu">6</a> 
+	</div>
+</div>
+	
+	
+	
+
+<!--        <div id="banner">
+            <div class="module-banner">
+
+                <div class="flexslider" id="banners-slider">
+                    <ul class="slides">
+                             //这里有开头注释
+                        <li data-downbtn-bgc="#2EA9FF" style="width: 100%; float: left; margin-right: -100%; display: list-item; background: url(./yi_haitao_files/images_v2/banners/1.jpg) 50% 50% no-repeat scroll rgb(255, 255, 255);">
+                            <a href="#" target="_blank" onclick="return false;" class="img" style=""></a>
+                        </li>   //这里有结尾注释
+                        
+                        <li data-downbtn-bgc="#2EA9FF" style="width: 100%; float: left; margin-right: -100%; display: none; background: url(./yi_haitao_files/images_v2/banners/2.jpg) 50% 50% no-repeat scroll rgb(255, 255, 255);">
+                            <a href="#" target="_blank" onclick="return false;" class="img" style=""></a>
+                        </li>    
+                        <li data-downbtn-bgc="#08d7ae" style="width: 100%; float: left; margin-right: -100%; display: none; background: url(./yi_haitao_files/images_v2/banners/4.jpg) 50% 50% no-repeat scroll rgb(255, 255, 255);">
+                            <a href="#" target="_blank" onclick="return false;" class="img" style="" rel="nofollow"></a>
+                        </li>                   
+                        <li data-downbtn-bgc="#08d7ae" style="width: 100%; float: left; margin-right: -100%; display: none; background: url(./yi_haitao_files/images_v2/banners/3.jpg) 50% 50% no-repeat scroll rgb(0, 86, 156);">
+                            <a href="#" target="_blank" onclick="return false;" class="img" style="" rel="nofollow"></a>
+                        </li>                       
+                    </ul>
+                </div>
+
+                <div class="download-zone"></div>
+                <div class="download">
+                    <div class="content_c">
+                        <div class="downbtn">
+                            <a id="firefox_browser" class="main_browser_list" href="./yi_haitao_files/plugin/haitao_0.9.0.xpi">
+                            <i></i>
+                            <span>Firefox插件下载</span>
+                            </a>
+                             <a id="chrome_browser" class="main_browser_list" href="./yi_haitao_files/plugin/haitao_0.9.0.crx">
+                            <i></i>
+                            <span>Chrome插件下载</span>
+                            </a>
+                             <a id="safari_browser" class="main_browser_list" href="#">
+                            <i></i>
+                            <span>Safari插件下载</span>
+                            </a>
+                        </div>
+                        <div class="clr"></div>
+                    <ol class="flex-control-nav"><li><a class="active">1</a></li><li><a class="">2</a></li><li><a class="">3</a></li><!--  <li><a class="">4</a></li>               //这里有结尾注释
+					</ol></div>
+                </div>
+
+                <div class="hidden">
+                    <iframe id="downloadAction"></iframe>
+                </div>
+
+                <script type="text/javascript">
+                    $(function() {
+                        $('#banners-slider').flexslider({
+                            controlsContainer: '.download .content_c',
+                            start: function(slider) {
+                                /*console.log('currentSlide='+slider.currentSlide+' nextSlide='+slider.nextSlide);*/
+                                //$('.downbtn a').css('background-color', $('.slides li').eq(slider.currentSlide).attr('data-downbtn-bgc'));
+                            },
+                            before: function(slider) {
+                                /*console.log('currentSlide='+slider.currentSlide+' nextSlide='+slider.nextSlide);*/
+                                //$('.downbtn a').css('background-color', $('.slides li').eq(slider.nextSlide).attr('data-downbtn-bgc'));
+                            }
+                        });
+                    });
+                </script>
+
+            </div>
+
+            <div class="clr"></div>
+        </div>
+
+        <div class="downother">
+            <div class="branch">
+                <ul>
+                    <li>
+                        <a href="./yi_haitao_files/plugin/haitao_0.9.0.crx" target="_blank" title="海淘100搜狗版" rel="nofollow">
+                            <i class="browser_icon icon_sogou"></i>
+                            <p>搜狗</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="./yi_haitao_files/plugin/haitao_0.9.0.crx" target="_blank" title="海淘100枫树版" rel="nofollow">
+                            <i class="browser_icon icon_fengshu"></i>
+                            <p>枫树</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="./yi_haitao_files/plugin/haitao_0.9.0.crx" target="_blank" title="海淘100Opera版">
+                            <i class="browser_icon icon_opera"></i>
+                            <p>Opera</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="./yi_haitao_files/plugin/haitao_0.9.0.crx" target="_blank" title="海淘100百度版">
+                            <i class="browser_icon icon_baidu"></i>
+                            <p>百度</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="./yi_haitao_files/plugin/haitao_0.9.0.crx" target="_blank" title="海淘100UC版">
+                            <i class="browser_icon icon_uc"></i>
+                            <p>UC</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="./yi_haitao_files/plugin/haitao_0.9.0.crx" target="_blank" title="海淘100淘宝浏览器版">
+                            <i class="browser_icon icon_taobao"></i>
+                            <p>淘宝</p>
+                        </a>
+                    </li>
+                    <!-- 
+                    <li>
+                        <a href="./yi_haitao_files/plugin/haitao_0.9.0.crx" target="_blank" title="海淘100Safari版" rel="nofollow">
+                            <i class="browser_icon icon_safari"></i> 
+                            <p>Safari</p>
+                        </a>
+                    </li> 
+                    <li>
+                        <a href="#" target="_blank" title="海淘100IE版" rel="nofollow">
+                            <i class="browser_icon icon_ie"></i>
+                            <p>IE</p>
+                        </a>
+                    </li>          //这里有结尾注释
+                    
+                    <li>
+                        <a href="./yi_haitao_files/plugin/haitao_0.9.0.crx" target="_blank" title="海淘100猎豹版" rel="nofollow">
+                            <i class=" browser_icon icon_liebao"></i>
+                            <p>猎豹</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="./yi_haitao_files/plugin/haitao_0.9.0.crx" target="_blank" title="海淘100傲游版" rel="nofollow">
+                            <i class="browser_icon icon_maxthon"></i>
+                            <p>傲游</p>
+                        </a>
+                    </li>
+                    <!--  
+                    <li>
+                        <a href="#" target="_blank" title="海淘100360极速版" rel="nofollow">
+                            <i class="browser_icon icon_360jisu"></i>
+                            <p>360极速</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" target="_blank" title="海淘100360安全版" rel="nofollow">
+                            <i class="browser_icon icon_360se"></i>
+                            <p>360安全</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="./yi_haitao_files/plugin/haitao_0.9.0.xpi" target="_blank" title="海淘100火狐版" rel="nofollow">
+                            <i class="browser_icon icon_firefox"></i>
+                            <p>火狐</p>
+                        </a>
+                    </li>
+                           //这里有结尾注释
+                </ul>
+
+            </div>
+        </div>
+        <div class="clr"></div>-->
+        <?php $index=0;?>
+        <?php foreach ($haitao_result as $class_id=>$goods_arr){?>
+        <?php $index+=1;?>
+        <div id="haitao_goods<?php echo $index;?>" class="haitao_goods_rec" pic_loaded="false" allow_move="true">
+        	<div class="content_c">
+	        	<h2 class="haitao_goods_class"><i><?php echo $index;?>F</i><span><?php echo $class_name[$class_id];?></span></h2>
+	        	<div class="haitao_goods_main">
+	        		<ul class="haitao_goods_ul">
+	        			<?php $goods_arr1 = array_slice($goods_arr, 0, 12);?>
+	        			<?php if($goods_arr1){?>
+	        			<li class="haitao_goods_li">
+	        				<?php foreach ($goods_arr1 as $list){?>
+	        				<div class="haitao_goods_list">
+	        					<div class="haitao_goods_padding">
+		        					<div class="haitao_goods_img">
+			        					<a href="<?php echo $list['goods_url'];?>" target="_blank"><img src="images/default.png" original="<?php echo get_goods_img($list['goods_img']);?>" onerror="this.src='images/nopic.png'"/></a>
+			        				</div>
+			        				<div class="haitao_goods_name"><a href="<?php echo $list['goods_url'];?>" target="_blank"><?php echo $list['goods_name'];?></a></div>
+			        				<div class="haitao_goods_price"><?php echo get_format_price($list['goods_price'])?></div>
+	        					</div>
+	        				</div>
+	        				<?php }?>
+	        			</li>
+	        			<?php }?>
+	        			<?php $goods_arr2 = array_slice($goods_arr, 12, 12);?>
+	        			<?php if($goods_arr2){?>
+	        			<li class="haitao_goods_li">
+	        				<?php foreach ($goods_arr2 as $list){?>
+	        				<div class="haitao_goods_list">
+	        					<div class="haitao_goods_padding">
+		        					<div class="haitao_goods_img">
+			        					<a href="<?php echo $list['goods_url'];?>" target="_blank"><img src="images/default.png" original="<?php echo get_goods_img($list['goods_img']);?>" onerror="this.src='images/nopic.png'"/></a>
+			        				</div>
+			        				<div class="haitao_goods_name"><a href="<?php echo $list['goods_url'];?>" target="_blank"><?php echo $list['goods_name'];?></a></div>
+			        				<div class="haitao_goods_price"><?php echo get_format_price($list['goods_price'])?></div>
+	        					</div>
+	        				</div>
+	        				<?php }?>
+	        			</li>
+	        			<?php }?>
+	        			<?php $goods_arr3 = array_slice($goods_arr, 24, 12);?>
+	        			<?php if($goods_arr3){?>
+	        			<li class="haitao_goods_li">
+	        				<?php foreach ($goods_arr3 as $list){?>
+	        				<div class="haitao_goods_list">
+	        					<div class="haitao_goods_padding">
+		        					<div class="haitao_goods_img">
+			        					<a href="<?php echo $list['goods_url'];?>" target="_blank"><img src="images/default.png" original="<?php echo get_goods_img($list['goods_img']);?>" onerror="this.src='images/nopic.png'"/></a>
+			        				</div>
+			        				<div class="haitao_goods_name"><a href="<?php echo $list['goods_url'];?>" target="_blank"><?php echo $list['goods_name'];?></a></div>
+			        				<div class="haitao_goods_price"><?php echo get_format_price($list['goods_price'])?></div>
+	        					</div>
+	        				</div>
+	        				<?php }?>
+	        			</li>
+	        			<?php }?>
+	        		</ul>
+	        		<a class="haitao_move_ico haitao_move_left"></a>
+	        		<a class="haitao_move_ico haitao_move_right"></a>
+	        	</div>
+        	</div>
+        </div>
+        <?php }?>
+		<?php if($history_arr){?>
+		<div id="goods_history" class="goods_main">
+			<div class="content_c">
+				<h2 class="goods_list_title">其他用户也在关注<div class="bottom_border"></div></h2>
+				<div class="goods_list_main">
+					<?php foreach ($history_arr as $val){?>
+					<div class="goods_list">
+						<div class="goods_list_padding">
+							<div class="goods_list_border">
+								<div class="goods_list_padding2">
+									<div class="goods_list_img">
+										<a href="<?php echo $val['goods_url'];?>" target="_balnk">
+											<img src="<?php echo $val['goods_img'];?>" onerror="this.src='images/nopic.png'"/>
+										</a>
+									</div>
+									<h3 class="goods_list_name">
+										<a href="<?php echo $val['goods_url'];?>" target="_balnk"><?php echo $val['goods_name'];?></a>
+									</h3>
+									<h3 class="goods_list_zh_name"><?php echo $val['zh_goods_name'];?></h3>
+									<div class="goods_list_info">
+										<span class="goods_list_price">¥<?php echo $val['goods_price'];?></span>
+										<span class="goods_list_source">来源网站：<?php echo $val['site_name'];?></span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<?php }?>
+				</div>
+			</div>
+		</div>
+		<?php }?>
+		<?php if($order_arr){?>
+		<div id="goods_order" class="goods_main">
+			<div class="content_c">
+				<h2 class="goods_list_title">看看大家都买了什么<div class="bottom_border"></div></h2>
+				<div class="goods_list_main">
+					<?php foreach ($order_arr as $val){?>
+					<div class="goods_list">
+						<div class="goods_list_padding">
+							<div class="goods_list_border">
+								<div class="goods_list_padding2">
+									<div class="goods_list_img">
+										<a href="<?php echo $val['goods_url'];?>" target="_balnk">
+											<img src="<?php echo $val['goods_img'];?>" onerror="this.src='images/nopic.png'"/>
+										</a>
+									</div>
+									<h3 class="goods_list_name">
+										<a href="<?php echo $val['goods_url'];?>" target="_balnk"><?php echo $val['goods_name'];?></a>
+									</h3>
+									<h3 class="goods_list_zh_name"><?php echo $val['zh_goods_name'];?></h3>
+									<div class="goods_list_info">
+										<span class="goods_list_price">¥<?php echo $val['goods_price'];?></span>
+										<span class="goods_list_source">来源网站：<?php echo $val['site_name'];?></span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<?php }?>
+				</div>
+			</div>
+		</div>
+		<?php }?>
+		<div id="sites">
+			<div class="content_c">
+				<h2>已支持的海淘网站</h2>
+				<ul class="site_ul">
+					<?php foreach ($site_arr as $val){?>
+					<li class="site_li">
+						<a href="<?php echo $val['site_url'];?>" target="_blank">
+							<img src="<?php echo $val['site_logo'];?>"/>
+							<span><?php echo $val['site_name'];?></span>
+						</a>
+					</li>
+					<?php }?>
+				</ul>
+				<div class="site_submit"><span>如果上述列表中没有您需要的网站，请<a id="site_submit" href="javascript:;">点击提交</a></span></div>
+			</div>
+		</div>
+		
+        <div id="content">
+            <div class="content_c">
+
+                <div id="maincolumn_full">
+
+                    <div class="component-home">
+                        <div class="componentheading">
+                        </div>
+
+                        <div class="contentpaneopen">
+                            <ul class="usages-toc">
+                                <li class="item1">
+                                    <div>
+                                        <h3>自动到手价</h3>
+                                        <p>自动根据商品重量、距离和汇率，计算人民币到手价格</p>
+                                        <a href="#"></a>
+                                    </div>
+                                </li>
+                                <li class="item2">
+                                    <div>
+                                        <h3>尺码换算</h3>
+                                        <p>最全面的海淘工具箱，尺码换算、单词翻译，统统不用愁</p>
+                                        <a href="#"></a>
+                                    </div>
+                                </li>
+                                <li class="item3">
+                                    <div>
+                                        <h3>一键转运</h3>
+                                        <p>直接将商品信息直接发送到物流公司，免注册，一键搞定</p>
+                                        <a href="#"></a>
+                                    </div>
+                                </li>
+                                <li class="item4">
+                                    <div>
+                                        <h3>全程跟踪</h3>
+                                        <p>全程跟踪境内境外物流状态，从商家发货到快递上门，支持所有主流转运路线</p>
+                                        <a href="#"></a>
+                                    </div>
+                                </li>
+                                <li class="item5">
+                                    <div>
+                                        <h3>微信同步</h3>
+                                        <p>通过公众号随时掌握自己所关注商品和包裹的状态</p>
+                                        <a href="#"></a>
+                                    </div>
+                                </li>
+                                <li class="item6">
+                                    <div>
+                                        <h3>最多商家</h3>
+                                        <p>最全的海外商家支持和多浏览器支持</p>
+                                        <a href="#"></a>
+                                    </div>
+                                </li>
+                            </ul>
+
+                            <span class="article_separator">&nbsp;</span>
+                            <div class="clr"></div>
+                        </div>
+                    </div>
+
+
+                    <div class="clr"></div>
+
+                </div>
+
+                <div class="clr"></div>
+            </div>
+        </div>
+	
+		<!--  
+        <div id="news">
+            <div class="content_c">
+                <div class="module-blognews">
+                    <div class="item">
+                        <div class="item_c">
+                            <a href="http://www.ehtao.net/faq/other/howabout.html" target="_blank" style="background: url('yi_haitao_files/images_v2/tg_1.png') no-repeat scroll center center transparent;" class="img"></a>
+                            <div class="caption">
+                                <h3><a href="http://www.ehtao.net/faq/other/howabout.html" target="_blank" title="海淘助手NO.1">海淘助手NO.1</a></h3>
+                                <p>作为国内最早诞生的海淘购物助手，海淘100拥有最多的用户数量，最高的知名度，最好的用户口碑，最细致完善的功能。因为专业，所以我们更放心。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="item_c">
+                            <a href="http://www.ehtao.net/faq/feature/autosync.html" target="_blank" style="background: url('yi_haitao_files/images_v2/tg_2.png') no-repeat scroll center center transparent;" class="img"></a>
+                            <div class="caption">
+                                <h3><a href="http://www.ehtao.net/faq/feature/autosync.html" target="_blank" title="自动云同步">自动云同步</a></h3>
+                                <p>当您拥有了海淘100账号，就不用再担心重复操作了。您的关注商品，包裹单号，都将通过海淘100账号自动同步，您可以通过电脑和邮箱随时随地了解您关注的信息。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="item_c">
+                            <a href="http://www.ehtao.net/faq/other/download.html" target="_blank" style="background: url('yi_haitao_files/images_v2/tg_3.png') no-repeat scroll center center transparent;" class="img"></a>
+                            <div class="caption">
+                                <h3><a href="http://www.ehtao.net/faq/other/download.html" target="_blank" title="支持多个浏览器平台">支持多个浏览器平台</a></h3>
+                                <p>我们几乎支持所有的浏览器平台，从Chrome-&gt;Firefox-&gt;IE-&gt;国内众多双核浏览器。我们尽量保证用户体验的一致，确保每个用户都获得更佳的海淘体验。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="latest_news" class="item">
+                        <div class="item_c">
+                            <div class="item_c_c">
+                                <h3>常见问题</h3>
+                                <ul>
+                                    <li><a href="http://www.ehtao.net/faq/other/notdisplay.html" title="为什么安装了海淘100无法显示">为什么安装了海淘100无法显示？<span>[08/13]</span></a>
+                                    </li>
+                                    <li><a href="http://www.ehtao.net/faq/install/chrome.html" title="Chrome（谷歌浏览器）本地安装指南">Chrome（谷歌浏览器）本地安装指南<span>[08/13]</span></a>
+                                    </li>
+                                    <li><a href="http://www.ehtao.net/faq/install/baidu.html" title="百度浏览器安装指南">百度浏览器安装指南<span>[08/13]</span></a>
+                                    </li>
+                                    <li><a href="http://www.ehtao.net/faq/feature/pricehistory.html" title="如何查看并使用海淘100价格曲线">如何查看并使用海淘100价格曲线<span>[08/13]</span></a>
+                                    </li>
+                                    <li><a href="http://www.ehtao.net/faq/feature/pricealert.html" title="海淘100降价提醒怎么用">海淘100降价提醒怎么用？<span>[08/13]</span></a>
+                                    </li>
+                                    <li><a href="http://www.ehtao.net/faq/feature/coudan.html" title="什么是海淘凑单">什么是海淘凑单？<span>[08/13]</span></a>
+                                    </li>
+                                </ul>
+                                <a href="http://www.ehtao.net/faq/feature.html" class="more">查看更多</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clr"></div>
+            </div>
+        </div>
+	-->
+	<script type="text/javascript">
+	$(function(){
+		//海淘商品延迟加载
+		layer_load();
+		$(window).bind('scroll',layer_load);
+
+		function layer_load(){
+			var scroll_top = $(document).scrollTop();
+			var scroll_bottom = scroll_top + $(window).height();
+			$('.haitao_goods_rec').each(function(){
+				var pic_loaded = $(this).attr('pic_loaded');
+				if(pic_loaded=='false'){
+					var this_top = $(this).offset().top;
+					var this_bottom = this_top + $(this).outerHeight();
+					if(this_top<=scroll_bottom && this_bottom>=this_bottom){
+						$(this).find('.haitao_goods_img img').each(function(){
+							var original = $(this).attr('original');
+							$(this).attr('src',original);
+							$(this).attr('original','');
+						});
+						$(this).attr('pic_loaded','true');
+					}
+				}
+			});
+		}
+		
+		//海淘商品滚动
+		$('.haitao_goods_rec .haitao_goods_ul').scrollLeft(0);
+		var goods_moving = false;
+		$('.haitao_goods_rec .haitao_move_left').click(function(){
+			if(goods_moving){
+				return false;
+			}else{
+				goods_moving = true;
+			}
+			var haitao_goods_ul = $(this).siblings('.haitao_goods_ul');
+			var haitao_goods_ul_width = haitao_goods_ul.width();
+			var haitao_goods_li = haitao_goods_ul.find('.haitao_goods_li');
+			var totle_width = haitao_goods_li.length*haitao_goods_ul_width;
+			var old_left = haitao_goods_ul.scrollLeft();
+			var new_left = old_left+haitao_goods_ul_width;
+			if(new_left>=totle_width){
+				new_left = 0;
+			}
+			haitao_goods_ul.animate({scrollLeft:new_left},1000,function(){
+				goods_moving = false;
+			});
+		});
+		$('.haitao_goods_rec .haitao_move_right').click(function(){
+			var haitao_goods_ul = $(this).siblings('.haitao_goods_ul');
+			var haitao_goods_ul_width = haitao_goods_ul.width();
+			var haitao_goods_li = haitao_goods_ul.find('.haitao_goods_li');
+			var totle_width = haitao_goods_li.length*haitao_goods_ul_width;
+			var old_left = haitao_goods_ul.scrollLeft();
+			var new_left = old_left-haitao_goods_ul_width;
+			if(new_left<=-haitao_goods_ul_width){
+				new_left = totle_width-haitao_goods_ul_width;
+			}
+			haitao_goods_ul.animate({scrollLeft:new_left},1000,function(){
+				goods_moving = false;
+			});
+		});
+
+		//自动轮播
+		$('.haitao_goods_rec').hover(function(){
+			$(this).attr('allow_move','false');
+		},function(){
+			$(this).attr('allow_move','true');
+		});
+		var lunbo_timer = setInterval(function(){
+			var window_center = $(document).scrollTop() + Math.round($(window).height()/2);
+			$('.haitao_goods_rec').each(function(){
+				var this_top = $(this).offset().top;
+				var this_bottom = this_top + $(this).outerHeight();
+				if(this_top<=window_center && this_bottom>=window_center){
+					var allow_move = $(this).attr('allow_move');
+					if(allow_move=='true'){
+						$(this).find('.haitao_move_left').click();
+					}
+				}
+			});
+		},5000);
+	});
+    //提交网站
+    $('#site_submit').click(function(){
+        $('#window_back').height($(document).height()).show();
+        var site_window_main = $('#site_window_main');
+        var screen_width = $(window).width();
+        var screen_height = $(window).height();
+        var window_width = site_window_main.outerWidth();
+        var window_height = site_window_main.outerHeight();
+        var window_left = $(document).scrollLeft() + (screen_width-window_width)/2;
+        var window_top = $(document).scrollTop() + (screen_height-window_height)/2;
+        site_window_main.css({'left':window_left+'px','top':window_top+'px'}).fadeIn(500);
+        $('#site_domain').focus();
+        });
+        $('#site_button').click(function(){
+            var site_domain_obj = $('#site_domain');
+            var site_domain = $.trim(site_domain_obj.val());
+            if(site_domain==''){
+                alert('网站主页不能为空！');
+                site_domain_obj.focus();
+                return false;
+            }
+
+            $.ajax({
+        	url:'<?php echo WEB_URL;?>interface.php?act=plugin_site_submit',
+        	type:"POST",
+        	data:'site_domain='+site_domain,
+        	dataType:"json",
+        	timeout:5000,
+        	cache:false,
+        	async:true,
+        	success:function(result){
+            	alert(result.message);
+            	if(result.status==1){
+            		site_domain_obj.val('');
+            		$('#window_close_img').click();
+            	}else{
+            		site_domain_obj.focus();
+            	}
+        	}
+            });
+        });
+        //关闭提交网站窗口
+        $('#window_close_img').click(function(){
+        $('#window_back').hide();
+        $('#site_window_main').fadeOut(500);
+        });
+    
+        $("#wclose").click(function() {
+            $("#warning").hide();
+        })
+         // 产品菜单
+        $('.item60').prepend('<span class="divider">|</span>').hover(
+            function() {
+                $(this).children('ul').show();
+            },
+            function() {
+                $(this).children('ul').hide();
+            }
+        );
+
+        $(function() {
+
+            // 判断浏览器
+            ie6 = $.browser.msie && ($.browser.version == "6.0") && !$.support.style;
+            var userAgent = navigator.userAgent.toLowerCase();
+            var _alertbegin = '<div id="ie_alert"><div class="content_c"><span class="close">关闭</span>温馨提示：';
+            var _alertend = '为得到更好的浏览体验，请使用' + '<a href="http://windows.microsoft.com/zh-CN/internet-explorer/downloads/ie" target="_blank">IE7或以上版本</a>、' + '<a href="http://www.firefox.com" target="_blank">FireFox</a>、' + '<a href="http://www.google.cn/chrome/" target="_blank">Chrome</a>、' + '<a href="http://www.opera.com" target="_blank">Opera</a>、' + '<a href="http://www.apple.com.cn/safari/download/" target="_blank">Safari</a>' + '</div></div>';
+            if (ie6 == true) {
+                $('body').prepend(_alertbegin + '您使用的IE浏览器版本过低，' + _alertend);
+            }
+            /*else if (userAgent.indexOf('se 2.x') != -1) {
+                            $('body').prepend(_alertbegin + '您正在使用搜狗浏览器，' + _alertend);
+                        } else if (userAgent.indexOf('360se') != -1) {
+                            $('body').prepend(_alertbegin + '您正在使用360浏览器，' + _alertend);
+                        }*/
+            $("#ie_alert .close").click(function() {
+                $("#ie_alert").hide();
+            });
+
+            //图片切换
+            $('.flexslider').hover(function() {
+                $('.flex-direction-nav li a.prev').css('display', 'block');
+                $('.flex-direction-nav li a.next').css('display', 'block');
+            }, function() {
+                $('.flex-direction-nav li a.prev').css('display', 'none');
+                $('.flex-direction-nav li a.next').css('display', 'none');
+            });
+        });
+    </script>
+<!-- 引入网站通用底部文件 -->
+<?php require 'modules/index_footer.php';?>

@@ -1,0 +1,23 @@
+<?php
+//获取商品链接
+$goods_url = get_string('goods_url');
+if($goods_url==''){
+	ajax_return(0, '获取商品链接失败！');
+}
+
+$level_sql = "select eval_level from goods_eval where goods_url='$goods_url'";
+$level_arr = $mysql_handle->getRs($level_sql);
+$good_level = 0;
+$normal_level = 0;
+$bad_level = 0;
+foreach($level_arr as $val){
+	if($val['eval_level']==1){
+		$normal_level += 1;
+	}else if($val['eval_level']==2){
+		$bad_level += 1;
+	}else{
+		$good_level += 1;
+	}
+}
+ajax_return(1, '获取商品评价统计成功！', array('good_level'=>$good_level,'normal_level'=>$normal_level,'bad_level'=>$bad_level))
+?>

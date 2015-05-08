@@ -1,0 +1,22 @@
+.ie6_warning{padding:12px 15px 12px 30px;background:url('../images/error_ico.png') 3px center no-repeat #F7F7F7;border:1px solid #E3E3E3;}
+.analysis_padding{padding:10px 20px;}
+.analysis_main{border:1px solid #E7E7EB;}
+.data_condition{background:#F4F5F9;border-bottom:1px solid #E7E7EB;}
+.class_condition{height:40px;line-height:40px;padding:0 20px;border-bottom:1px solid #E7E7EB;}
+.data_condition_title{font-size:14px;font-weight:100;margin:0;padding:0;float:left;}
+.data_class_ul{float:left;margin-left:10px;overflow:hidden;zoom:1;}
+.data_class_ul li{float:left;}
+.data_class_ul a{font-size:14px;padding:0 18px;display:block;}
+.data_class_ul a:hover{background:#E8E8F0;}
+.data_class_ul .current_class{background:#44B549;color:#fff;}
+.data_class_ul .current_class:hover{background:#44B549;}
+.time_condition{padding:10px 20px;overflow:hidden;zoom:1;}
+.time_condition .data_condition_title{height:32px;line-height:32px;}
+.data_time_ul{float:left;margin-left:30px;overflow:hidden;zoom:1;background:#fff;border:1px solid #E6E7EC;}
+.data_time_ul li{float:left;border-right:1px solid #E6E7EC;}
+.data_time_ul a{display:block;height:30px;line-height:30px;padding:0 50px;font-size:14px;_width:30px;text-align:center;}
+.data_time_ul a:hover{background:#E8E8F0;}
+.data_time_ul .current_time{color:#459AE9;}
+.data_time_ul .current_time:hover{background:none;}
+#analysis_iframe{width:100%;}
+#chart_box{height:400px;margin:20px;}

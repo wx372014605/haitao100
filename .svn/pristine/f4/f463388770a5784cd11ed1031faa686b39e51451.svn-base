@@ -1,0 +1,57 @@
+// ==UserScript==
+// @name gnc Script
+// @namespace gnc
+// @include ^https://www.gnc.com/checkout.jsp
+// @require jquery.js
+// @require config.js
+// @require plugin_address.js
+// ==/UserScript==
+
+
+
+var plugin_address = new PluginAddress();
+var _this = plugin_address.get_this();
+
+//设置国家地址
+plugin_address.set_country_address = function(){
+	
+}
+
+//设置省份地址
+plugin_address.set_province_address = function(){
+	setTimeout(function(){
+		$('#billingAddress\\.address\\.state option:contains("OR")').attr('selected',true);
+	},1000);
+}
+
+//设置城市地址
+plugin_address.set_city_address = function(){
+	$('#billingAddress\\.address\\.city').val(_this.city_address);
+}
+
+//设置街道地址
+plugin_address.set_street_address = function(){
+	$('#billingAddress\\.address\\.address1').val(_this.street_address);
+}
+
+//设置公寓地址
+plugin_address.set_apartment_address = function(){
+	$('#billingAddress\\.address\\.address2').val(_this.apartment_address);
+}
+
+//设置邮编
+plugin_address.set_zip_code = function(){
+	$('#billingAddress\\.address\\.postalCode').val(_this.zip_code);
+}
+
+//设置收货人姓名
+plugin_address.set_user_name = function(){
+	
+}
+
+//设置收货人手机号码
+plugin_address.set_user_mobile = function(){
+	
+}
+
+plugin_address.init();

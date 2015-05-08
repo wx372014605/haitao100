@@ -1,0 +1,6 @@
+<?php
+//获取缓存中的优惠商品列表
+$discount_goods = get_cache('discount_goods');
+$discount_goods = (array)$discount_goods;
+ajax_return(1, '优惠商品列表成功！',$discount_goods);
+?>

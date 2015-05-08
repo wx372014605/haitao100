@@ -1,0 +1,38 @@
+.hidden_back{position:absolute;left:0;top:0;z-index:999;background:#000;opacity:.7;filter:alpha(opacity=70);display:none;}
+.menu_button_main{position:absolute;z-index:1000;background:#fff;text-align:left;overflow:hidden;border-radius:5px;display:none;}
+.menu_button_main .window_close{text-align:right;margin:3px;}
+.menu_button_main .window_close img{cursor:pointer;}
+.menu_button_content{padding:0px 20px 20px 20px;}
+.menu_button_content div{margin:5px 0;}
+.menu_add_div a{color:#fff;background:#5AAA4B;display:block;width:50px;height:26px;line-height:26px;text-align:center;font-size:14px;border-radius:3px;}
+.auto_menu_tip{text-align:center;margin:5px 0;line-height:30px;color:red;font-size:14px;font-weight:bold;font-family:'Microsoft YaHei';display:none;}
+.menu_edit{overflow:hidden;zoom:1;margin:20px;}
+.menu_text{float:left;}
+#menu_data{width:400px;height:400px;border:1px solid #D2D2D2;}
+.menu_button{margin:15px 0;text-align:center;}
+.menu_button input{
+	width:90px;height:40px;height-height:40px;text-align:center;border:0;background:#5AAA4B;
+	color:#fff;font-weight:bold;font-size:16px;border-radius:5px;cursor:pointer;
+}
+.menu_view{float:left;margin-left:10px;overflow:hidden;zoom:1;}
+.menu_view .menu_scan{float:left;width:300px;height:400px;border:1px solid #D2D2D2;background:#EBEBEB;position:relative;overflow:hidden;}
+.menu_view .menu_setting{float:left;margin-left:10px;}
+.menu_view .menu_setting p{line-height:230%;}
+.weixin_logo{margin-top:40px;text-align:center;}
+.menu_tip{line-height:30px;text-align:center;margin-top:10px;}
+.parent_button_bar{position:absolute;left:0;top:100%;margin-top:-38px;z-index:10;width:100%;background:#454545;}
+.parent_button_bar a{color:#fff;display:block;width:100%;line-height:20px;padding:5px 0;outline:none;}
+.parent_button_bar a:hover{color:#fff;background:#818181;}
+.parent_button_bar .parent_button_a{height:38px;line-height:38px;padding:0;background:url('../images/weixin_menu_back.jpg') repeat-x;font-size:16px;}
+.parent_button_bar .selected_a{border:1px solid #fff;margin-left:-1px;_margin-right:-1px;height:36px;line-height:36px;background:#4D71AA;}
+.parent_button_bar .selected_a:hover{background:#4D71AA;}
+.parent_button_bar .selected_a2{background:#95C186;outline:none;}
+.parent_button_bar .selected_a2:hover{background:#95C186;}
+.parent_button_bar .parent_button{float:left;text-align:center;font-weight:bold;position:relative;}
+.parent_button_bar .sub_button{position:absolute;left:2%;z-index:-1;width:96%;background:#454545;border-radius:5px;overflow:hidden;display:none;}
+.sub_button_add{border-bottom:1px solid #ddd;cursor:pointer;padding:3px 0;}
+.sub_button_add img{width:25px;height:25px;}
+.parent_button_add{float:left;cursor:pointer;}
+.menu_setting{display:none;}
+.menu_setting .setting_a{color:#fff;background:#5AAA4B;display:block;width:50px;height:26px;line-height:26px;text-align:center;font-size:14px;border-radius:3px;float:left;}
+.menu_setting .del_a{float:left;margin-left:10px;margin-top:1px;}

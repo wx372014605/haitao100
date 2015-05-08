@@ -1,0 +1,12 @@
+<?php
+//引入配置文件和相关函数
+require_once ('includes.php');
+//引入新浪微博通用类
+require_once ('class/sina_weibo.php');
+
+$code = get_string('code');
+if($code){
+	$sina_weibo->set_access_token($code);
+	die('登录授权成功！access_token:'.$sina_weibo->get_access_token());
+}
+?>

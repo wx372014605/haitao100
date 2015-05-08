@@ -1,0 +1,55 @@
+// ==UserScript==
+// @name Amazon Script
+// @namespace amazon
+// @include ^https://www.amazon.com/gp/buy/addressselect/handlers/display.html
+// @require jquery.js
+// @require config.js
+// @require plugin_address.js
+// ==/UserScript==
+
+
+
+var plugin_address = new PluginAddress();
+var _this = plugin_address.get_this();
+
+//设置国家地址
+plugin_address.set_country_address = function(){
+	
+}
+
+//设置省份地址
+plugin_address.set_province_address = function(){
+	$('#enterAddressStateOrRegion').val(_this.province_address);
+}
+
+//设置城市地址
+plugin_address.set_city_address = function(){
+	$('#enterAddressCity').val(_this.city_address);
+}
+
+//设置街道地址
+plugin_address.set_street_address = function(){
+	$('#enterAddressAddressLine1').val(_this.street_address);
+}
+
+//设置公寓地址
+plugin_address.set_apartment_address = function(){
+	$('#enterAddressAddressLine2').val(_this.apartment_address);
+}
+
+//设置邮编
+plugin_address.set_zip_code = function(){
+	$('#enterAddressPostalCode').val(_this.zip_code);
+}
+
+//设置收货人姓名
+plugin_address.set_user_name = function(){
+	$('#enterAddressFullName').val(_this.user_name);
+}
+
+//设置收货人手机号码
+plugin_address.set_user_mobile = function(){
+	$('#enterAddressPhoneNumber').val(_this.user_mobile);
+}
+
+plugin_address.init();

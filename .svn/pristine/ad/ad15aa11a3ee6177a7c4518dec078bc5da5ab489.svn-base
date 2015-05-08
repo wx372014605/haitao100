@@ -1,0 +1,143 @@
+<?php
+//引入翻译函数库
+require (WEB_ROOT.'function/translate.php');
+
+//获取用户id
+$user_id = post_number('user_id');
+if($user_id==0){
+	ajax_return(0, '获取用户id失败！');
+}
+
+//获取来源网站id
+$site_id = post_number('site_id');
+
+//获取商品链接
+$goods_url = post_string('goods_url');
+if($goods_url==''){
+	ajax_return(0, '获取商品链接失败！');
+}
+
+//商品url标识
+$goods_sign = md5($goods_url);
+
+//获取商品预览图片
+$goods_img = post_string('goods_img');
+if($goods_img==''){
+	ajax_return(0, '获取商品预览图片失败！');
+}
+
+//获取商品名称
+$goods_name = post_string('goods_name');
+if($goods_name==''){
+	ajax_return(0, '获取商品名称失败！');
+}
+
+//获取商品价格
+$goods_price = floatval(post_string('goods_price'));
+if($goods_price==0){
+	ajax_return(0, '获取商品价格失败！');
+}
+
+//获取商品数量
+$goods_num = post_number('goods_num');
+if($goods_num==0){
+	ajax_return(0, '获取商品数量失败！');
+}
+
+//获取商品中文名称
+$zh_goods_name = post_string('zh_goods_name');
+if($zh_goods_name==''){
+	//翻译商品中文名称
+	$zh_goods_name = en_to_zh($goods_name);
+}
+
+//获取关税价格
+$tax_price = floatval(post_string('tax_price'));
+
+//获取是否包含关税
+$tax_include = post_number('tax_include');
+
+//获取收件人姓名
+$receive_name = post_string('receive_name');
+if($receive_name==''){
+	ajax_return(0, '获取收件人姓名失败！');
+}
+
+//获取收件人手机号码
+$receive_mobile = post_string('receive_mobile');
+if($receive_mobile==''){
+	ajax_return(0, '获取收件人手机号码失败！');
+}
+if(!preg_match($my_regexp['mobile'], $receive_mobile)){
+	ajax_return(0, '收件人手机号码格式不正确！');
+}
+
+//获取收件人省份
+$receive_province = post_number('receive_province');
+if($receive_province==0){
+	ajax_return(0, '获取收件人省份失败！');
+}
+
+//获取收件人城市
+$receive_city = post_number('receive_city');
+if($receive_city==0){
+	ajax_return(0, '获取收件人城市失败！');
+}
+
+//获取收件人区县
+$receive_district = post_number('receive_district');
+if($receive_district==0){
+	ajax_return(0, '获取收件人区县失败！');
+}
+
+//获取收件人地址
+$receive_address = post_string('receive_address');
+if($receive_address==''){
+	ajax_return(0, '获取收件人地址失败！');
+}
+
+//获取转运地址id
+$taddress_id = post_number('taddress_id');
+
+//获取附加服务
+$attach_service1 = post_number('attach_service1');
+$attach_service2 = post_number('attach_service2');
+$attach_service3 = post_number('attach_service3');
+$attach_service4 = post_number('attach_service4');
+
+//获取备注内容
+$order_remarks = post_string('order_remarks');
+
+//生成订单号
+$shopping_num = create_shopping_num();
+
+//获取下单时间
+$add_time = get_current_time();
+
+//更新用户收货地址
+$check_sql = "select address_id from user_address where user_id=$user_id limit 1";
+$check_arr = $mysql_handle->getRow($check_sql);
+if($check_arr){
+	$address_sql = "update user_address set user_name='$receive_name',user_mobile='$receive_mobile',user_province=$receive_province,
+	user_city=$receive_city,user_district=$receive_district,user_address='$receive_address' where user_id=$user_id limit 1";
+}else{
+	$address_sql = "insert into user_address (user_id,user_name,user_mobile,user_province,user_city,user_district,user_address,is_default) 
+	values ($user_id,'$receive_name','$receive_mobile',$receive_province,$receive_city,$receive_district,'$receive_address',1)";
+}
+$mysql_handle->query($address_sql);
+
+//生成订单
+$order_sql = "insert into transport_order (site_id,user_id,shopping_num,status_id,goods_sign,goods_url,goods_img,goods_name,
+goods_price,goods_num,zh_goods_name,tax_price,tax_include,receive_name,receive_mobile,receive_province,receive_city,
+receive_district,receive_address,taddress_id,attach_service1,attach_service2,attach_service3,attach_service4,order_remarks,add_time) values 
+($site_id,$user_id,'$shopping_num',1,'$goods_sign','$goods_url','$goods_img','$goods_name',$goods_price,$goods_num,'$zh_goods_name',$tax_price,
+$tax_include,'$receive_name','$receive_mobile','$receive_province','$receive_city','$receive_district','$receive_address',
+$taddress_id,$attach_service1,$attach_service2,$attach_service3,$attach_service4,'$order_remarks','$add_time')";
+$result = $mysql_handle->query($order_sql);
+if($result){
+	$order_id = $mysql_handle->get_insert_id();
+	ajax_return(1, '订单提交成功！',array('order_id'=>$order_id));
+}else{
+	ajax_return(0, '订单提交失败！');
+}
+?>

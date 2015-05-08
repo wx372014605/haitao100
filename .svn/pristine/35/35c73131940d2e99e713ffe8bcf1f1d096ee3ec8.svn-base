@@ -1,0 +1,35 @@
+<?php
+//获取用户id
+$user_id = post_number('user_id');
+if($user_id==0){
+	ajax_return(0, '获取用户id失败！');
+}
+
+//获取商品链接
+$goods_url = post_string('goods_url');
+if($goods_url==''){
+	ajax_return(0, '获取商品链接失败！');
+}
+
+//商品url标识
+$goods_sign = md5($goods_url);
+
+//获取评价等级
+$eval_level = post_number('eval_level');
+
+//获取评价内容
+$eval_message = post_string('eval_message');
+
+//获取评价时间
+$add_time = get_current_time();
+
+//添加评价
+$eval_sql = "insert into goods_eval (user_id,goods_sign,goods_url,eval_level,eval_message,add_time) values 
+($user_id,'$goods_sign','$goods_url',$eval_level,'$eval_message','$add_time')";
+$result = $mysql_handle->query($eval_sql);
+if($result){
+	ajax_return(1, '评价商品成功！');
+}else{
+	ajax_return(0, '评价商品失败！');
+}
+?>

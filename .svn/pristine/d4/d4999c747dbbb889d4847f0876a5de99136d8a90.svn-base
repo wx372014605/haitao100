@@ -1,0 +1,180 @@
+// ==UserScript==
+// @name my_order Script
+// @namespace my_order
+// @include ^http://localhost/haitao100/index.php\?app=my_order
+// @include ^http://www.haitao100.cn/index.php\?app=my_order
+// @require jquery.js
+// @require config.js
+// @require plugin_my.js
+// ==/UserScript==
+
+var plugin_my = new PluginMy();
+var _this = plugin_my.get_this();
+plugin_my.cart_page = 1;//默认显示第一页
+
+//页面初始化
+plugin_my.content_init = function(){
+	//加载插件内容
+	var no_plugin = $('#no_plugin').hide();
+	$(Plugin_cart).insertAfter(no_plugin).show();
+	_this.refresh_cart_list();
+}
+
+//绑定事件
+plugin_my.bind_event = function(){
+	//提交运单号
+	$('#'+PluginConf.css_refix+'cart_table .'+PluginConf.css_refix+'shipping_num_submit a').live('click',function(){
+		var this_obj = $(this);
+		var shipping_num_obj = $(this).parent().siblings('.'+PluginConf.css_refix+'shipping_num_text').find('input');
+		var shipping_num = $.trim(shipping_num_obj.val());
+		var order_id_obj = $(this).parents('tr');
+		var order_id = order_id_obj.attr('order_id');
+		if(shipping_num!=''){
+			var details = {
+				url: PluginConf.get_interface_file('update_shipping_num'),
+				method: 'POST',
+				async: true,
+				params: {'order_id':order_id,'shipping_num':shipping_num},
+				contentType: 'json'
+			};
+			kango.xhr.send(details, function(data) {
+				if (data.status == 200 && data.response != null) {
+					var result_obj = data.response;
+					var status = result_obj.status;
+					if(status==1){
+						this_obj.parents('.'+PluginConf.css_refix+'shipping_num_main').hide();
+					}else{
+						alert(result_obj.message);
+					}
+				}else { // something went wrong
+					
+				}
+			});
+		}
+	});
+	//删除购物车商品
+	$('#'+PluginConf.css_refix+'cart_table .'+PluginConf.css_refix+'cart_goods_delete').live('click',function(){
+		if(confirm('确定要删除这个商品吗？')){
+			var parent_tr = $(this).parents('tr');
+			var order_id = parent_tr.attr('order_id');
+			var details = {
+				url: PluginConf.get_interface_file('transport_order_delete'),
+				method: 'POST',
+				async: true,
+				params: {'order_id':order_id,},
+				contentType: 'json'
+			};
+			kango.xhr.send(details, function(data) {
+				if (data.status == 200 && data.response != null) {
+					var result_obj = data.response;
+					var status = result_obj.status;
+					if(status==1){
+						var cart_count = parseInt($('#'+PluginConf.css_refix+'cart_count').text());
+						$('#'+PluginConf.css_refix+'cart_count').text(cart_count-1);
+						_this.cart_page = 1;
+						_this.refresh_cart_list();
+					}else{
+						alert(result_obj.message);
+					}
+				}else { // something went wrong
+					
+				}
+			});
+		}
+	});
+	//购物车全选反选
+	$('#'+PluginConf.css_refix+'check_all').click(function(){
+		$('#'+PluginConf.css_refix+'cart_main .'+PluginConf.css_refix+'cart_goods_check').attr('checked',$(this).is(':checked'));
+		_this.refresh_cart_checked_num();
+	});
+	$('#'+PluginConf.css_refix+'cart_main .'+PluginConf.css_refix+'cart_goods_check').live('click',function(){
+		_this.refresh_cart_checked_num();
+	});
+	//刷新购物车选择的商品数量
+	this.refresh_cart_checked_num = function(){
+		var checked_num = $('#'+PluginConf.css_refix+'cart_main .'+PluginConf.css_refix+'cart_goods_check:checked').length;
+		$('#'+PluginConf.css_refix+'checked_num').text(checked_num);
+		if(checked_num>0){
+			$('#'+PluginConf.css_refix+'cart_submit').removeClass(PluginConf.css_refix+'disable_button');
+		}else{
+			$('#'+PluginConf.css_refix+'cart_submit').addClass(PluginConf.css_refix+'disable_button');
+		}
+	}
+}
+
+//刷新用户运单
+plugin_my.refresh_cart_list = function(){
+	kango.invokeAsync('kango.storage.getItem', 'user_id', function(data) {
+		var user_id = data;
+		var details = {
+			url: PluginConf.get_interface_file('get_transport_order',{'user_id':user_id,'page':_this.cart_page}),
+			method: 'GET',
+			async: true,
+			contentType: 'json'
+		};
+		kango.xhr.send(details, function(data) {
+			if (data.status == 200 && data.response != null) {
+				var result_obj = data.response;
+				var status = result_obj.status;
+				if(status==1){
+					var message = result_obj.message;
+					var attach = result_obj.attach;
+					var order_list = attach.order_list;
+					var cart_html = '';
+					var cart_length = order_list.length;
+					for(var i=0;i<cart_length;i++){
+						var cart_list = order_list[i];
+						var status_id = cart_list.status_id;
+						if(status_id==1){
+							var opera_html = '<div class="'+PluginConf.css_refix+'shipping_num_div">'+
+												'<span class="'+PluginConf.css_refix+'add_shipping_num">运单号<i></i></span>'+
+												'<div class="'+PluginConf.css_refix+'shipping_num_main">'+
+													'<div class="'+PluginConf.css_refix+'shipping_num_content">'+
+														'<i class="'+PluginConf.css_refix+'top_border_ico"></i>'+
+														'<div class="'+PluginConf.css_refix+'shipping_num_text"><input type="text" class="'+PluginConf.css_refix+'plugin_text" value="'+cart_list.shipping_num+'"></div>'+
+														'<div class="'+PluginConf.css_refix+'shipping_num_submit"><a>提交</a></div>'+
+													'</div>'+
+												'</div>'+
+											'</div>'+
+											'<p><a class="'+PluginConf.css_refix+'cart_goods_delete">删除订单</a></p>';
+						}else if(status_id==2){
+							var opera_html = '<p><a class="'+PluginConf.css_refix+'order_pay">去付款</a></p><p><a class="'+PluginConf.css_refix+'cart_goods_delete">删除订单</a></p>';
+						}
+						cart_html += '<tr class="'+PluginConf.css_refix+'cart_list" order_id="'+cart_list['order_id']+'">'+
+										'<td style="text-align:left;"><input type="checkbox" class="'+PluginConf.css_refix+'cart_goods_check" name="'+PluginConf.css_refix+'cart_goods_check"/></td>'+
+										'<td align="center"><a href="'+cart_list['goods_url']+'" target="_blank" class="'+PluginConf.css_refix+'cart_goods_img"><img src="'+cart_list['goods_img']+'"/></a></td>'+
+										'<td align="center"><a class="'+PluginConf.css_refix+'cart_goods_name" href="'+cart_list['goods_url']+'" target="_blank" title="'+cart_list['goods_name']+'">'+_this.sub_str(cart_list['goods_name'],50)+'</a></td>'+
+										'<td align="center"><span class="'+PluginConf.css_refix+'cart_goods_num">'+cart_list['goods_num']+'</span></td>'+
+										'<td align="center"><span class="'+PluginConf.css_refix+'cart_goods_time" title="'+cart_list['add_time']+'">'+_this.get_date(cart_list['add_time'])+'</span></td>'+
+										'<td align="center"><span class="'+PluginConf.css_refix+'cart_goods_state">'+cart_list['status_name']+'</span></td>'+
+										'<td align="center">'+opera_html+'</td>'+
+									'</tr>';
+					}
+					$("#"+PluginConf.css_refix+"cart_count").text(attach.record_count);
+					$('#'+PluginConf.css_refix+'cart_table .'+PluginConf.css_refix+'cart_list').remove();
+					$(cart_html).insertBefore($("#"+PluginConf.css_refix+"cart_check")).find('.'+PluginConf.css_refix+'shipping_num_div').hover(function(){
+						$(this).find('.'+PluginConf.css_refix+'shipping_num_main').show();
+					},function(){
+						$(this).find('.'+PluginConf.css_refix+'shipping_num_main').hide();
+					});
+					//加载分页html
+					var page_html = attach.page_html;
+					page_html = page_html.replace(/(id|class)="([^"]+)"/g,"$1"+'="'+PluginConf.css_refix+"$2"+'"');
+					var page_obj = $(page_html);
+					page_obj.find('a').click(function(){
+						_this.cart_page = $(this).attr('page');
+						_this.refresh_cart_list();
+						return false;
+					});
+					$('#'+PluginConf.css_refix+'cart_page').empty().append(page_obj);
+				}else{
+					alert(result_obj.message);
+				}
+			}else { // something went wrong
+				
+			}
+		});
+	});
+}
+
+plugin_my.init();

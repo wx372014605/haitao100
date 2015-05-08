@@ -1,0 +1,28 @@
+<?php 
+//引入配置文件和相关函数
+require_once ('includes.php');
+
+//获取图片url
+$img_url = get_string('img_url');
+//从远程下载图片
+if($img_url){
+	$curl = curl_init($img_url);
+	$header = array(
+		'Accept:*/*',
+		'Accept-Charset:GBK,utf-8;q=0.7,*;q=0.3',
+		'Accept-Encoding:gzip,deflate,sdch','Accept-Language:zh-CN,zh;q=0.8',
+		'Connection:keep-alive',
+		'Host:ym.zdmimg.com'
+	);
+	curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
+	curl_setopt($curl, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 5.1; rv:26.0) Gecko/20100101 Firefox/26.0');
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER,1);
+	$img_content = curl_exec($curl);
+	//$curl_info = curl_getinfo($curl);
+	if(curl_errno($curl)){
+		exit;
+	}
+	curl_close($curl);
+	echo $img_content;
+}
+?>

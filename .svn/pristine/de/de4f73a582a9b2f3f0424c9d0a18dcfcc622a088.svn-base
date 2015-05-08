@@ -1,0 +1,115 @@
+/*
+*插件地址通用类
+*/
+
+function PluginAddress(){
+	var _this = this;
+	this.country_address = '';
+	this.province_address = '';
+	this.city_address = '';
+	this.street_address = '';
+	this.apartment_address = '';
+	this.zip_code = '';
+	this.user_name = '';
+	this.user_mobile = '';
+	
+	//获取自身对象
+	this.get_this = function(){return _this;}
+	
+	//插件初始化
+	this.init = function(){
+		//获取转运地址列表
+		var details = {
+			url: PluginConf.get_interface_file('get_transport_address'),
+			method: 'GET',
+			async: true,
+			contentType: 'json'
+		};
+		kango.xhr.send(details, function(data) {
+			if (data.status == 200 && data.response != null) {
+				var transport_address_obj = data.response;
+				if(transport_address_obj.status==1){
+					var address_arr = transport_address_obj.attach;
+					_this.country_address = address_arr.country_address;
+					_this.province_address = address_arr.province_address;
+					_this.city_address = address_arr.city_address;
+					_this.street_address = address_arr.street_address;
+					_this.apartment_address = address_arr.apartment_address;
+					_this.zip_code = address_arr.zip_code;
+					
+					//自动加载地址
+					_this.set_country_address();
+					_this.set_province_address();
+					_this.set_city_address();
+					_this.set_street_address();
+					_this.set_apartment_address();
+					_this.set_zip_code();
+				}
+			}else { // something went wrong
+				
+			}
+		});
+		
+		//获取用户id
+		kango.invokeAsync('kango.storage.getItem', 'user_id', function(user_id){
+			//获取用户收货地址
+			var details = {
+				url: PluginConf.get_interface_file('get_user_address',{'user_id':user_id}),
+				method: 'GET',
+				async: true,
+				contentType: 'json'
+			};
+			kango.xhr.send(details, function(data) {
+				if (data.status == 200 && data.response != null) {
+					var user_address_obj = data.response;
+					var user_province = 0;
+					var user_city = 0;
+					var user_district = 0;
+					if(user_address_obj.status==1){
+						var address_arr = user_address_obj.attach;
+						if(address_arr.user_name){
+							_this.user_name = address_arr.user_name;
+							_this.set_user_name();
+						}
+						if(address_arr.user_mobile){
+							_this.user_mobile = address_arr.user_mobile;
+							_this.set_user_mobile();
+						}
+					}
+				}
+			});
+		});
+	}
+	
+	//设置国家地址
+	this.set_country_address = function(){
+	}
+	
+	//设置省份地址
+	this.set_province_address = function(){
+	}
+	
+	//设置城市地址
+	this.set_city_address = function(){
+	}
+	
+	//设置街道地址
+	this.set_street_address = function(){
+	}
+	
+	//设置公寓地址
+	this.set_apartment_address = function(){
+	}
+	
+	//设置邮编
+	this.set_zip_code = function(){
+	}
+	
+	//设置收货人姓名
+	this.set_user_name = function(){
+	}
+	
+	//设置收货人手机号码
+	this.set_user_mobile = function(){
+	}
+}

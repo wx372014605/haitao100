@@ -1,0 +1,15 @@
+<?php 
+/*
+* 通过模拟请求post到http://app.17kaixin8.com/demo/currency.shtml#body_top获取
+*/
+
+$url = 'http://api.uihoo.com/currency/currency.hprose.php';
+$data = 'Cs14"MYAPI_currency"a3{s3"USD"s3"CNY"s5"utf-8"}z';
+$result = curl_post_contents($url,$data);
+preg_match('/"now"s\d+"(\d+\.?\d+)"/',$result,$match_arr);
+if($match_arr and isset($match_arr[1])){
+	echo $match_arr[1];
+}else{
+	echo 0;
+}
+?>
