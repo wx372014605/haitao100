@@ -50,7 +50,7 @@ html,body{
 #hongfeng_translate_result_main font{margin-left:10px;font-size:12px;color:#0066C0;font-weight:normal;}
 
 /****直邮中国，国内信用卡提示框****/
-#hongfeng_site_tip_main{width:250px;position:absolute;left:50%;margin-left:-125px;top:50px;z-index:99999;padding:6px 10px;background:#18B4F0;border-radius:5px;box-shadow:1px 1px 5px #18B4F0;text-align:center;line-height:22px;box-sizing:content-box;}
+#hongfeng_site_tip_main{width:250px;position:absolute;left:50%;margin-left:-125px;top:50px;z-index:99999;padding:6px 10px;background:#18B4F0;border-radius:5px;box-shadow:1px 1px 5px #18B4F0;text-align:center;line-height:22px;}
 #hongfeng_site_tip_main div{color:#fff;font-size:12px;font-weight:bold;}
 #hongfeng_site_tip_main #hongfeng_site_tip_close{position:absolute;right:5px;top:2px;color:#fff;font-size:14px;font-weight:bold;font-family:"Trade Gothic Bold",Arial,Helvetica,sans-serif;cursor:pointer;}
 #hongfeng_site_tip_main #hongfeng_site_tip_close:hover{color:#fff;text-decoration:none;}

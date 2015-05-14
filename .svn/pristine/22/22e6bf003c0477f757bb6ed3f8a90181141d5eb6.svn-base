@@ -1692,21 +1692,20 @@ _html {
 #bn .tu{
 	text-align:center;
 	display:block;
-	height: 100%;
-	width: 59.8%;
+	height: 390px;
+	width: 600px;
 	float: left;
-	margin-left: 3px;
 }
 #bn .left {
-	width: 19.7%;
+	width: 200px;
 	float: left;
-	height: 100%;
+	height: 390px;
 	background-color: #FFFFFF;
 	z-index: 4;
 }
 #bn .left ul{
 	border: 1px solid #D8DBDC;
-	height: 388px;
+	height: 387px;
 	width: 198px;
 }
 #bn .left li {
@@ -1723,9 +1722,9 @@ _html {
 	font-weight: bold;
 }
 #bn .right {
-	float: right;
+	float: left;
 	height: 388px;
-	width: 19.8%;
+	width: 198px;
 	background-color: #FFFFFF;
 	z-index: 4;
 	border: 1px solid #c3c3c3;

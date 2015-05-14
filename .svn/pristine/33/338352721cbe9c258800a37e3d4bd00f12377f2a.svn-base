@@ -1593,7 +1593,7 @@ _html {
 .goods_main .goods_list_border:hover{border:1px solid #F2432C;box-shadow:0 0 5px #F2432C;}
 .goods_main .goods_list_padding2{padding:8px;}
 .goods_main .goods_list_img{text-align:center;}
-.goods_main .goods_list_img img{margin:0 auto;max-width:100%;height:100px;min-height:100px;border-radius:5px;}
+.goods_main .goods_list_img img{margin:0 auto;height:100px;}
 .goods_main .goods_list_name{word-break:break-all;word-wrap:break-warp;height:36px;line-height:18px;overflow:hidden;}
 .goods_main .goods_list_name a{color:#333333;}
 .goods_main .goods_list_name a:hover{color:#CC2E5B;}
@@ -1695,10 +1695,9 @@ _html {
 	height: 100%;
 	width: 59.8%;
 	float: left;
-	margin-left: 3px;
 }
 #bn .left {
-	width: 19.7%;
+	width: 19.8%;
 	float: left;
 	height: 100%;
 	background-color: #FFFFFF;
@@ -1706,7 +1705,7 @@ _html {
 }
 #bn .left ul{
 	border: 1px solid #D8DBDC;
-	height: 388px;
+	height: 387px;
 	width: 198px;
 }
 #bn .left li {
@@ -1724,8 +1723,8 @@ _html {
 }
 #bn .right {
 	float: right;
-	height: 388px;
-	width: 19.8%;
+	height: 100%;
+	width: 19.7%;
 	background-color: #FFFFFF;
 	z-index: 4;
 	border: 1px solid #c3c3c3;
